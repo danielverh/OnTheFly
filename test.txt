@@ -1,0 +1,7 @@
+﻿my_name = nil;
+if !my_name{
+	my_name;
+}
+else{
+	!my_name;
+}

@@ -1,0 +1,25 @@
+import io, time;
+
+my_string = "Test";
+my_int = 123;
+my_float = .523;
+my_bool = true;
+my_array = [.1, .2, .3, .4];
+
+box my_func (var1) {
+    io.print(var1);
+}
+
+if my_string == "Test" {
+    // Do something
+}
+elif my_string is "Test 2" {
+    // Else if statement
+}
+else {
+    // In all other cases
+}
+
+for test in range(0, 100) {
+    my_func(i);
+}

@@ -1,0 +1,41 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.2",
+    "signature": "6ab783b49e4397565f6801600938e779b120059b"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.2": {
+      "OnTheFly/1.0.0": {
+        "dependencies": {
+          "Antlr4.Runtime.Standard": "4.7.2"
+        },
+        "runtime": {
+          "OnTheFly.dll": {}
+        }
+      },
+      "Antlr4.Runtime.Standard/4.7.2": {
+        "runtime": {
+          "lib/netstandard1.3/Antlr4.Runtime.Standard.dll": {
+            "assemblyVersion": "4.7.2.0",
+            "fileVersion": "4.7.2.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "OnTheFly/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Antlr4.Runtime.Standard/4.7.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vT7inRjayVvSQ+tvm9h9Ovygz5Nh9DgvTkt5w6G6M8Wpsqz6rQpou/pLsShwrrZTOjHgCiizbWjO3G/NzMihyw==",
+      "path": "antlr4.runtime.standard/4.7.2",
+      "hashPath": "antlr4.runtime.standard.4.7.2.nupkg.sha512"
+    }
+  }
+}
