@@ -13,6 +13,7 @@ namespace OnTheFly
         private string[] constants;
         public static List<string> Heap = new List<string>();
         private Stack<FObject> opStack;
+        private Stack<int> callStack;
         private int pc;
         private bool comperator = false;
         private Dictionary<string, FObject> variables = new Dictionary<string, FObject>();
@@ -72,6 +73,9 @@ namespace OnTheFly
                         break;
                     case OpCode.JMP:
                         pc = NextInt();
+                        break;
+                    case OpCode.CALL_FUNCTION:
+                        int start = NextInt();
                         break;
                     case OpCode.JMP_EQ:
                         if (opStack.Pop().True())

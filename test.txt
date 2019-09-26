@@ -1,7 +1,2 @@
-﻿my_name = nil;
-if !my_name{
-	my_name;
-}
-else{
-	!my_name;
-}
+﻿my_name = (3 + 5) / 2;
+my_name;

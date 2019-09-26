@@ -36,8 +36,10 @@ namespace OnTheFly
         {
             if (context.INT() != null)
                 Instructions.AddInt(context.INT().GetText());
-            if(context.NIL() != null)
+            else if (context.NIL() != null)
                 Instructions.Add(OpCode.LOAD_NIL);
+            else if (context.parenExp != null)
+                EnterExpression(context.parenExp);
             else if (context.STRING() != null)
             {
                 Instructions.Add(OpCode.LOAD_STR);

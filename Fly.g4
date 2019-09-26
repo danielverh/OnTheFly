@@ -28,6 +28,7 @@ expression:
 	| BOOL
 	| STRING
 	| ID
+	| '(' parenExp=expression ')'
 	| unary='!' right=expression
 	| left = expression 'is' right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
