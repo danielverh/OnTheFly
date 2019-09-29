@@ -8,7 +8,7 @@
            "type": "antlr-debug",
            "request": "launch",
            "name": "Debug Grammar",
-           "input": "input.txt",
+           "input": "test.txt",
            "grammar": "Fly.g4",
            "startRule": "program",
            "visualParseTree": true
