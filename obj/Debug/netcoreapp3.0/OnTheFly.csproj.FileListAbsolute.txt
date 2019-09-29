@@ -1,4 +1,0 @@
-c:\Users\danie\Documents\Projects\OnTheFly\obj\Debug\netcoreapp3.0\OnTheFly.csprojAssemblyReference.cache
-c:\Users\danie\Documents\Projects\OnTheFly\obj\Debug\netcoreapp3.0\OnTheFly.csproj.CoreCompileInputs.cache
-c:\Users\danie\Documents\Projects\OnTheFly\obj\Debug\netcoreapp3.0\OnTheFly.AssemblyInfoInputs.cache
-c:\Users\danie\Documents\Projects\OnTheFly\obj\Debug\netcoreapp3.0\OnTheFly.AssemblyInfo.cs
