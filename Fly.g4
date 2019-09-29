@@ -1,24 +1,31 @@
 grammar Fly;
+
 program: statement+;
 statement: (
 		varAssignment
 		| importStatement
 		| methodCall
 		| expression
+		| returnStmt
 	) ';'
 	| forLoop
 	| methodDefinition
 	| ifElse;
-varAssignment: ID '=' expression;
-importStatement: 'import' ID (',' ID)*;
+returnStmt: 'return' expression;
+
+varAssignment:
+	ID (|'[' index=expression ']') '=' value=expression
+	| ID op = (MUL | DIV | ADD | SUB) '=' value=expression;
+importStatement: 'import' package (',' package)*;
+package: ID (|'.' package);
 ifElse:
 	'if' ifExpr = expression '{' (if += statement)* '}' (
-		'elif' elifExpr += expression (elifSb+=statementBlock)
+		'elif' elifExpr += expression (elifSb += statementBlock)
 	)* ( | 'else' '{' (else += statement)* '}');
-forLoop: 'for' (ID 'in' expression) '{' statement* '}';
-statementBlock: '{'  statement* '}';
+forLoop: 'for' (var=ID 'in' expression|expression) '{' statement* '}';
+statementBlock: '{' statement* '}';
 methodDefinition:
-	'box ' ID '(' (ID (',' ID)* |) ')' '{' statement* '}';
+	'box ' name = ID '(' (args += ID (',' args += ID)* |) ')' '{' statement* '}';
 expression:
 	methodCall
 	| array
@@ -27,26 +34,30 @@ expression:
 	| FLOAT
 	| BOOL
 	| STRING
+	| target=expression '.' callOn=expression
+	| ID '[' index=expression ']'
 	| ID
-	| '(' parenExp=expression ')'
-	| unary='!' right=expression
-	| left = expression 'is' right = expression
+	| '(' parenExp = expression ')'
+	| unary = '!' right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
 	| left = expression op = (MUL | DIV) right = expression
-	| left = expression op = (ADD | SUB) right = expression;
+	| left = expression op = (ADD | SUB | MOD) right = expression;
 methodCall:
-	ID ('.' ID)* '(' (expression (',' expression)* |) ')';
-array: '[' ( | expression (',' expression)*) ']';
+	ID '(' (expression (',' expression)* |) ')';
+array:
+	'[' ( | items+=expression (',' items+=expression)*) ']' (|'(' size=expression (',' addSize=expression) ')')
+	| var=ID '[' spliceStart = expression ':' (|spliceEnd = expression) ']';
 NIL: 'nil';
 FLOAT: [0-9]* '.' [0-9]+;
 INT: [0-9]+;
 BOOL: 'true' | 'false';
-STRING: '"' ~('\'' | '\\' | '\n' | '\r' | '"')+ '"';
+STRING: '"' ~('\'' | '\\' | '\n' | '\r' | '"')+ '"' | '""';
 ID: [a-zA-Z_]+ [a-zA-Z0-9_]*;
 ADD: '+';
 SUB: '-';
 MUL: '*';
 DIV: '/';
+MOD: '%';
 
 EQ: '==';
 NEQ: '!=';

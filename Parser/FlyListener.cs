@@ -52,6 +52,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitStatement([NotNull] FlyParser.StatementContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.returnStmt"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterReturnStmt([NotNull] FlyParser.ReturnStmtContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.returnStmt"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitReturnStmt([NotNull] FlyParser.ReturnStmtContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.varAssignment"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -71,6 +81,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitImportStatement([NotNull] FlyParser.ImportStatementContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.package"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPackage([NotNull] FlyParser.PackageContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.package"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPackage([NotNull] FlyParser.PackageContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.ifElse"/>.
 	/// </summary>

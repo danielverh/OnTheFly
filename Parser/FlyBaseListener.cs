@@ -60,6 +60,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStatement([NotNull] FlyParser.StatementContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.returnStmt"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterReturnStmt([NotNull] FlyParser.ReturnStmtContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.returnStmt"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitReturnStmt([NotNull] FlyParser.ReturnStmtContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.varAssignment"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -83,6 +95,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitImportStatement([NotNull] FlyParser.ImportStatementContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.package"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPackage([NotNull] FlyParser.PackageContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.package"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPackage([NotNull] FlyParser.PackageContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.ifElse"/>.
 	/// <para>The default implementation does nothing.</para>
