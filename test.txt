@@ -1,10 +1,5 @@
 ﻿import math, text;
-str = "1,2,3,4,5";
-arr = text.split(str, ",");
-print(arr);
-print(text.replace(str, ",", " "));
-
-
+print(math.power(10, 2));
 /*
 my_int = 0;
 my_float = 1.0;

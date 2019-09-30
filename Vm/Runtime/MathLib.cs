@@ -10,6 +10,8 @@ namespace OnTheFly.Vm.Runtime
 
         public MathLib()
         {
+            RegisterMethod("pi", 0, x => FObject.NewF32(MathF.PI));
+
             RegisterMethod("floor", 1, Single(MathF.Floor));
             RegisterMethod("ceiling", 1, Single(MathF.Ceiling));
             RegisterMethod("sin", 1, Single(MathF.Sin));
@@ -21,15 +23,15 @@ namespace OnTheFly.Vm.Runtime
             RegisterMethod("sqrt", 1, Single(MathF.Sqrt));
             RegisterMethod("log", 1, Single(MathF.Log));
             RegisterMethod("log10", 1, Single(MathF.Log10));
+
+            RegisterMethod("logx", 2, x => FObject.NewF32(MathF.Log(x[0].IsFloat(), x[1].IsFloat())));
+            RegisterMethod("power", 2, x => FObject.NewF32(MathF.Pow(x[0].IsFloat(), x[1].IsFloat())));
+            RegisterMethod("round", 2, x => FObject.NewF32(MathF.Round(x[0].IsFloat(), x[1].IsInt())));
         }
 
         internal Method Single(SingleFOp op)
         {
-            return x =>
-            {
-                ;
-                return FObject.NewF32(op.Invoke(Is<float>(x[0])));
-            };
+            return x => FObject.NewF32(op.Invoke(x[0].IsFloat()));
         }
     }
 }

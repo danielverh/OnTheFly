@@ -115,7 +115,7 @@ namespace OnTheFly
                         break;
                     case OpCode.ADD_FUNCTION:
                         var name = constants[NextInt()];
-                        var function = new FFunction() {Arity = NextInt(), Name = name};
+                        var function = new FFunction() { Arity = NextInt(), Name = name };
                         for (int j = 0; j < function.Arity; j++)
                             function.Arguments.Add(constants[NextInt()]);
                         var endPos = NextInt();
@@ -178,6 +178,9 @@ namespace OnTheFly
                     case OpCode.START_BLOCK:
                         blockStack.Push(new FBlock(globals));
                         break;
+                    case OpCode.START_LOOP:
+                        blockStack.Push(new FBlock(globals, true, NextInt()));
+                        break;
                     case OpCode.END_BLOCK:
                         blockStack.Pop().Close();
                         break;
@@ -197,7 +200,7 @@ namespace OnTheFly
                     case OpCode.ARRAY_PUSH:
                         var val = opStack.Pop();
                         var ptr = opStack.Pop().PTR;
-                        ((FArray) Heap[ptr]).Push(val);
+                        ((FArray)Heap[ptr]).Push(val);
                         break;
                     case OpCode.ARRAY_SPLICE:
                         var to = opStack.Pop(); //
@@ -218,6 +221,20 @@ namespace OnTheFly
                         break;
                     case OpCode.COUNT:
                         opStack.Push(opStack.Pop().Count());
+                        break;
+                    case OpCode.BREAK:
+                        while (true)
+                        {
+                            var v = blockStack.Pop();
+                            if (v.Loop)
+                            {
+                                pc = v.EndPos;
+                                v.Close();
+                                break;
+                            }
+                            else
+                                v.Close();
+                        }
                         break;
                     case OpCode.NO_OP:
                         break;
@@ -245,7 +262,7 @@ namespace OnTheFly
 
         private OpCode NextOperation()
         {
-            return (OpCode) instructions[pc++];
+            return (OpCode)instructions[pc++];
         }
 
         private int NextInt()

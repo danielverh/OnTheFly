@@ -17,24 +17,32 @@ namespace OnTheFly.Vm.Runtime
         {
             RegisterMethod("split", 2,
                 args => FObject.NewArray(new FArray(
-                    Is<string>(args[0]).Split(Is<string>(args[1]))
+                    args[0].IsString().Split(args[1].IsString())
                         .Select(FObject.NewString).ToArray())));
             RegisterMethod("replace", 3, GetMethod((x, y, z) => x.Replace(y, z)));
+            RegisterMethod("join", 2, (x)=>
+            {
+                var arr = x[0];
+                if (arr.Type != FObjectType.Array)
+                    throw new Exception();
+                var glue = x[1].IsString();
+                return FObject.NewString(string.Join(glue, arr.Array().Get().Select(y => y.ToString())));
+            });
         }
 
         internal Method GetMethod(SingleString str)
         {
-            return x => FObject.NewString(str.Invoke(Is<string>(x[0])));
+            return x => FObject.NewString(str.Invoke(x[0].IsString()));
         }
 
         internal Method GetMethod(DoubleString str)
         {
-            return x => FObject.NewString(str.Invoke(Is<string>(x[0]), Is<string>(x[1])));
+            return x => FObject.NewString(str.Invoke(x[0].IsString(), x[1].IsString()));
         }
 
         internal Method GetMethod(TripleString str)
         {
-            return x => FObject.NewString(str.Invoke(Is<string>(x[0]), Is<string>(x[1]), Is<string>(x[2])));
+            return x => FObject.NewString(str.Invoke(x[0].IsString(), x[1].IsString(), x[2].IsString()));
         }
     }
 }

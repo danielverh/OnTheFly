@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c:\Users\danie\Documents\Projects\OnTheFly\Fly.g4 by ANTLR 4.7.1
+// Generated from c:\Users\danie\Documents\Projecten\OnTheFly\Fly.g4 by ANTLR 4.7.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -50,6 +50,12 @@ public interface IFlyVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitReturnStmt([NotNull] FlyParser.ReturnStmtContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="FlyParser.breakStmt"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBreakStmt([NotNull] FlyParser.BreakStmtContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="FlyParser.varAssignment"/>.
 	/// </summary>

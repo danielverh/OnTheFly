@@ -188,6 +188,9 @@ namespace OnTheFly
                     case OpCode.START_BLOCK:
                         sb.AppendLine("START_BLOCK");
                         break;
+                    case OpCode.START_LOOP:
+                        sb.AppendLine($"START_LOOP with end at:{this[++i]}");
+                        break;
                     case OpCode.END_BLOCK:
                         sb.AppendLine("END_BLOCK");
                         break;
@@ -226,6 +229,9 @@ namespace OnTheFly
                         break;
                     case OpCode.IMPORT:
                         sb.AppendLine($"IMPORT {StringConstants[this[++i]]}");
+                        break;
+                    case OpCode.BREAK:
+                        sb.AppendLine("BREAK");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -283,7 +289,8 @@ namespace OnTheFly
         ADD_FUNCTION,
         ADD_ARGUMENT,
         RETURN,
-        START_BLOCK, END_BLOCK,
+        BREAK,
+        START_BLOCK, END_BLOCK, START_LOOP,
 
         JMP,
         JMP_EQ,

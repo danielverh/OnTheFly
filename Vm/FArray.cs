@@ -64,5 +64,9 @@ namespace OnTheFly.Vm
             var c = items.Take(pos).Select(x=>x.Raw());
             return $"[{string.Join(", ", c)}]";
         }
+        public FObject[] Get()
+        {
+            return items.Take(pos).ToArray();
+        }
     }
 }

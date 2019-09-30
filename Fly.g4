@@ -7,12 +7,13 @@ statement: (
 		| methodCall
 		| expression
 		| returnStmt
+		| breakStmt
 	) ';'
 	| forLoop
 	| methodDefinition
 	| ifElse;
 returnStmt: 'return' expression;
-
+breakStmt: 'break';
 varAssignment:
 	ID (|'[' index=expression ']') '=' value=expression
 	| ID op = (MUL | DIV | ADD | SUB) '=' value=expression;

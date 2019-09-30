@@ -39,8 +39,12 @@ namespace OnTheFly
                 EnterForLoop(context.forLoop());
             else if (context.returnStmt() != null)
                 EnterReturnStmt(context.returnStmt());
-            else if(context.importStatement() != null)
+            else if (context.importStatement() != null)
                 EnterImportStatement(context.importStatement());
+            else if (context.breakStmt() != null)
+            {
+                Instructions.Add(OpCode.BREAK);
+            }
         }
 
         public override void EnterExpression(FlyParser.ExpressionContext context)
@@ -76,7 +80,7 @@ namespace OnTheFly
                 if (Imports.Contains(context.target.GetText()))
                 {
                     var lib = context.target.GetText();
-                    if(context.callOn.methodCall() == null)
+                    if (context.callOn.methodCall() == null)
                         throw new Exception("No method call found.");
                     var method = context.callOn.methodCall().ID().GetText();
                     var expressions = context.callOn.methodCall().expression();
@@ -298,7 +302,7 @@ namespace OnTheFly
                     }
 
                     Instructions.Add(OpCode.PRINT_LN);
-                    break;
+                    break;                
                 case "input":
                     Instructions.Add(OpCode.READ_LN);
                     break;
@@ -381,7 +385,9 @@ namespace OnTheFly
 
                 Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
                 var endPos = Instructions.Fillable(); // Set the end position
-                Instructions.StartBlock(); // Start a block for context dependent variables 
+                Instructions.Add(OpCode.START_LOOP); // Start a block for context dependent variables 
+                var endPos2 = Instructions.Fillable(); // Set the end position
+
                 foreach (var stmt in context.statement())
                     EnterStatement(stmt);
 
@@ -391,6 +397,7 @@ namespace OnTheFly
                 Instructions.Add(start);
 
                 Instructions.Fill(endPos, Instructions.Count);
+                Instructions.Fill(endPos2, Instructions.Count);
             }
         }
 
@@ -403,7 +410,7 @@ namespace OnTheFly
                 var varName = context.var.Text;
                 Instructions.Add(Instructions.AddString(varName));
                 EnterExpression(context.spliceStart);
-                if(hasEnd)
+                if (hasEnd)
                     EnterExpression(context.spliceEnd);
                 else
                 {
@@ -443,6 +450,7 @@ namespace OnTheFly
                 Imports.Add(package.GetText());
             }
         }
+        
         public List<string> Imports = new List<string>();
     }
 }
