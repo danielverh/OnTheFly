@@ -62,24 +62,27 @@ import the libraries using and import statement; for example:
 `import math, text`
 #### `math`
 usage example:
-`number = math.power(5, 2); // 25`
-`floor(float)`
-`ceiling(float)`
-`sin(float)`
-`cos(float)`
-`tan(float)`
-`asin(float)`
-`acos(float)`
-`atan(float)`
-`sqrt(float)`
-`log(float)`
-`logx(float y, float x)`
-`log10(float)`
-`power(float base, float exponent)`
-`power(float decimal, int decimalDigits)`
+```number = math.power(5, 2); // 25
+floor(float)
+ceiling(float)
+sin(float)
+cos(float)
+tan(float)
+asin(float)
+acos(float)
+atan(float)
+sqrt(float)
+log(float)
+logx(float y, float x)
+log10(float)
+power(float base, float exponent)
+power(float decimal, int decimalDigits)
+```
 #### `text`
 usage example:
-`items = text.split("1,2,3,4", ","); // ['1', '2', '3', '4']`
-`split(string input, string seperator)`;
-`replace(string source, string target, string replaceWith)`
-`join(array items, string separator);`
+```
+items = text.split("1,2,3,4", ","); // ['1', '2', '3', '4']
+split(string input, string seperator);
+replace(string source, string target, string replaceWith)
+join(array items, string separator);
+```
