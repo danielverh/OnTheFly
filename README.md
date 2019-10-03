@@ -40,6 +40,16 @@ for i < 100 {
     numbers[i] = "item " + i;
     i += 1;
 }
+// Push an item onto an array:
+fruits += "Kiwi";
+fruits.insert(0, "Strawberry"); // Inserts object after the given index
+fruits.remove(0);
+```
+If you want to take a part from an array (aka splicing) you can use the following:
+```
+items = [0, 1, 2, 3, 4];
+items_part1 = items[0:2]; // takes items with index 0 from including 2
+items_part2 = items[3:]; // takes items with index 3 and higher
 ```
 ## Functions
 Here are some functions examples:

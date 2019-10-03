@@ -39,7 +39,7 @@ namespace OnTheFly
         public int AddString(string str, bool hasQuotes = false)
         {
             if (hasQuotes)
-                str = str.Substring(1, str.Length - 2);
+                str = str[1..^1];
             if (StringConstants.Contains(str))
                 return StringConstants.IndexOf(str);
             StringConstants.Add(str);
@@ -224,6 +224,9 @@ namespace OnTheFly
                     case OpCode.ARRAY_SET:
                         sb.AppendLine($"ARRAY_SET");
                         break;
+                    case OpCode.ARRAY_INSERT:
+                        sb.AppendLine($"ARRAY_INSERT");
+                        break;
                     case OpCode.ARRAY_PUSH_LOT:
                         sb.AppendLine($"ARRAY_PUSH_LOT {this[++i]}");
                         break;
@@ -283,6 +286,7 @@ namespace OnTheFly
         ARRAY_GET,
         ARRAY_SPLICE,
         ARRAY_SET,
+        ARRAY_INSERT,
 
         CALL_BUILTIN,
         CALL_FUNCTION,

@@ -14,10 +14,15 @@ namespace OnTheFly
     {
         static void Main(string[] args)
         {
+            args = new string[] { "test.txt" };
             var debug = false;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            var lexer = new FlyLexer(new AntlrFileStream("test.txt"));
+            if(args.Length < 1 || !File.Exists(args[0]))
+            {
+                Console.WriteLine("File doesn't exist.");
+                return;
+            }
+            var lexer = new FlyLexer(new AntlrFileStream(args[0]));
             var parser = new FlyParser(new CommonTokenStream(lexer));
             var listener = new Listener();
             listener.EnterProgram(parser.program());

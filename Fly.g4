@@ -15,8 +15,7 @@ statement: (
 returnStmt: 'return' expression;
 breakStmt: 'break';
 varAssignment:
-	ID (|'[' index=expression ']') '=' value=expression
-	| ID op = (MUL | DIV | ADD | SUB) '=' value=expression;
+	ID (|'[' index=expression ']') (op = (MUL | DIV |ADD | SUB)|)'=' value=expression;
 importStatement: 'import' package (',' package)*;
 package: ID (|'.' package);
 ifElse:

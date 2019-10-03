@@ -22,7 +22,6 @@ namespace OnTheFly
         private Stack<FCall> callStack;
         private Stack<FBlock> blockStack;
         private int pc;
-        private bool comperator = false;
         private Dictionary<string, FObject> globals = new Dictionary<string, FObject>();
         private Dictionary<string, FFunction> functions = new Dictionary<string, FFunction>(255);
 
@@ -218,6 +217,13 @@ namespace OnTheFly
                         index = opStack.Pop(); // has to be int
                         arr = opStack.Pop().Array();
                         arr.Remove(index.I32);
+                        arr.pos--;
+                        break;
+                    case OpCode.ARRAY_INSERT:
+                        index = opStack.Pop();
+                        val = opStack.Pop();
+                        arr = opStack.Pop().Array();
+                        arr.Insert(index.IsInt(), val);
                         break;
                     case OpCode.COUNT:
                         opStack.Push(opStack.Pop().Count());

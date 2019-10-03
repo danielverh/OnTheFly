@@ -46,10 +46,29 @@ namespace OnTheFly.Vm
                 throw new IndexOutOfRangeException();
             return items[index];
         }
-
+        public void Insert(int index, FObject item)
+        {
+            index++;
+            // for inclusive numbers
+            if (items.Length <= pos - 1)
+                Extend(_add);
+            for (int i = index; i < pos; i++)
+            {
+                items[i + 1] = items[i];
+            }
+            items[index] = item;
+            pos++;
+        }
         public void Remove(int index)
         {
             items[index] = FObject.Nil();
+            var n = new FObject[items.Length - 1];
+            for (int i = 0; i < items.Length; i++)
+            {
+                if(i != index)
+                    n[i] = items[i];
+            }
+            items = n;
         }
 
         private void Extend(int chunkSize)

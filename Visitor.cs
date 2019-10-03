@@ -171,9 +171,18 @@ namespace OnTheFly
 
             if (context.op != null)
             {
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(Instructions.AddString(name));
-
+                if (context.index != null)
+                {
+                    Instructions.Add(OpCode.GET_VAR);
+                    Instructions.Add(Instructions.AddString(name));
+                    EnterExpression(context.index);
+                    Instructions.Add(OpCode.ARRAY_GET);
+                }
+                else
+                {
+                    Instructions.Add(OpCode.GET_VAR);
+                    Instructions.Add(Instructions.AddString(name));
+                }
                 switch (context.op.Text)
                 {
                     case "+":
@@ -226,7 +235,6 @@ namespace OnTheFly
             endPositions.Add(Instructions.Fillable());
 
             Instructions.Fill(ifEndPos, Instructions.Count);
-            var statementCount = 1;
             if (context._elifExpr.Count > 0)
             {
                 for (var i = 0; i < context._elifExpr.Count; i++)
@@ -313,6 +321,26 @@ namespace OnTheFly
                     }
 
                     Instructions.Add(OpCode.COUNT);
+                    break;
+                case "remove":
+                    if(expressions.Length != 1)
+                    {
+                        throw new Exception($"Arity mismatch, expected 1 got {expressions.Length}");
+                    }
+                    EnterExpression(expressions[0]);
+                    Instructions.Add(OpCode.ARRAY_REMOVE);
+                    break;
+                case "insert":
+
+                    if (expressions.Length != 2)
+                    {
+                        throw new Exception($"Arity mismatch, expected 2 got {expressions.Length}");
+                    }
+                    foreach (var expr in expressions)
+                    {
+                        EnterExpression(expr);
+                    }
+                    Instructions.Add(OpCode.ARRAY_INSERT);
                     break;
                 default:
                     foreach (var expr in expressions)
