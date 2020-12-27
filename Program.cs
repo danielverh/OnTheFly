@@ -6,6 +6,7 @@ using System.Threading;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using FlyLang;
+using OnTheFly.Code;
 using OnTheFly.Vm;
 
 namespace OnTheFly
