@@ -3,14 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Antlr4.Runtime;
+using FlyLang;
+using OnTheFly.Code;
 
 namespace OnTheFly
 {
     public class FlyCode
     {
-        public Instructions Parse()
+        public static (Instructions Instructions, CodeContexts Contexts) Parse(string text)
         {
-            
+            var lexer = new FlyLexer(new AntlrInputStream(text));
+            var parser = new FlyParser(new CommonTokenStream(lexer));
+            var listener = new Listener();
+            listener.EnterProgram(parser.program());
+            return (listener.Instructions, listener.Contexts);
         }
     }
 }

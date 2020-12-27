@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FlyLang;
+using OnTheFly.Code;
 
 namespace OnTheFly
 {
     public class Listener : FlyBaseListener
     {
-        public Instructions Instructions;
+        public Instructions Instructions = new Instructions();
+        public CodeContexts Contexts = new CodeContexts();
 
         public Listener()
         {
-            Instructions = new Instructions();
         }
 
         public override void EnterProgram(FlyParser.ProgramContext context)
@@ -25,6 +26,13 @@ namespace OnTheFly
 
         public override void EnterStatement(FlyParser.StatementContext context)
         {
+            var ctx = new CodeContext();
+            ctx.Code = context.GetText();
+            if (context.Start != null && context.Stop != null)
+                ctx.Line = $"{context.Start.Line}-{context.Stop.Line}";
+            if (context.Start != null && context.Stop != null)
+                ctx.Position = $"{context.Start.Column}-{context.Stop.Column}";
+            ctx.OpCodeStart = Instructions.Count;
             if (context.expression() != null)
                 EnterExpression(context.expression());
             else if (context.varAssignment() != null)
@@ -45,22 +53,26 @@ namespace OnTheFly
             {
                 Instructions.Add(OpCode.BREAK);
             }
+
+            ctx.OpCodeEnd = Instructions.Count;
+            Contexts.Add(ctx);
         }
 
         public override void EnterExpression(FlyParser.ExpressionContext context)
         {
-            if (context.INT() != null)
+            if (context.INT() != null) // Int to operator stack
                 Instructions.LoadInt(context.INT().GetText());
-            else if (context.NIL() != null)
+            else if (context.NIL() != null) // Null to operator stack
                 Instructions.Add(OpCode.LOAD_NIL);
             else if (context.parenExp != null)
                 EnterExpression(context.parenExp);
-            else if (context.STRING() != null)
+            else if (context.STRING() != null) // Load string to constants, and push to operator stack
             {
                 Instructions.Add(OpCode.LOAD_STR);
-                Instructions.Add(Instructions.AddString(context.STRING().GetText(), true));
+                var stringIndex = Instructions.AddString(context.STRING().GetText(), true);
+                Instructions.AddInt(stringIndex);
             }
-            else if (context.FLOAT() != null)
+            else if (context.FLOAT() != null) // Float to operator stack
                 Instructions.LoadFloat(context.FLOAT().GetText());
             else if (context.BOOL() != null)
                 Instructions.LoadBool(context.BOOL().GetText());
@@ -68,7 +80,7 @@ namespace OnTheFly
             {
                 var i = Instructions.AddString(context.ID().GetText());
                 Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(i);
+                Instructions.AddInt(i);
                 if (context.index != null)
                 {
                     EnterExpression(context.index);
@@ -88,9 +100,10 @@ namespace OnTheFly
                     {
                         EnterExpression(expr);
                     }
+
                     Instructions.Add(OpCode.CALL_BUILTIN);
-                    Instructions.Add(Instructions.AddString(lib));
-                    Instructions.Add(Instructions.AddString(method));
+                    Instructions.AddInt(Instructions.AddString(lib));
+                    Instructions.AddInt(Instructions.AddString(method));
                 }
                 else
                 {
@@ -174,15 +187,16 @@ namespace OnTheFly
                 if (context.index != null)
                 {
                     Instructions.Add(OpCode.GET_VAR);
-                    Instructions.Add(Instructions.AddString(name));
+                    Instructions.AddInt(Instructions.AddString(name));
                     EnterExpression(context.index);
                     Instructions.Add(OpCode.ARRAY_GET);
                 }
                 else
                 {
                     Instructions.Add(OpCode.GET_VAR);
-                    Instructions.Add(Instructions.AddString(name));
+                    Instructions.AddInt(Instructions.AddString(name));
                 }
+
                 switch (context.op.Text)
                 {
                     case "+":
@@ -206,13 +220,13 @@ namespace OnTheFly
             {
                 EnterExpression(context.index);
                 Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(Instructions.AddString(name));
+                Instructions.AddInt(Instructions.AddString(name));
                 Instructions.Add(OpCode.ARRAY_SET);
             }
             else
             {
                 Instructions.Add(OpCode.SET_VAR);
-                Instructions.Add(Instructions.AddString(name));
+                Instructions.AddInt(Instructions.AddString(name));
             }
         }
 
@@ -223,7 +237,7 @@ namespace OnTheFly
             EnterExpression(context.ifExpr);
             Instructions.Add(OpCode.JMP_FALSE);
             // Create an empty parameter which should be the end of the statement
-            var ifEndPos = Instructions.Fillable();
+            var ifEndPos = Instructions.FillableInt();
             Instructions.StartBlock();
             foreach (var statement in context._if)
             {
@@ -232,9 +246,9 @@ namespace OnTheFly
 
             Instructions.EndBlock();
             Instructions.Add(OpCode.JMP);
-            endPositions.Add(Instructions.Fillable());
+            endPositions.Add(Instructions.FillableInt());
 
-            Instructions.Fill(ifEndPos, Instructions.Count);
+            Instructions.FillInt(ifEndPos, Instructions.Count);
             if (context._elifExpr.Count > 0)
             {
                 for (var i = 0; i < context._elifExpr.Count; i++)
@@ -244,7 +258,7 @@ namespace OnTheFly
 
                     EnterExpression(expr);
                     Instructions.Add(OpCode.JMP_FALSE);
-                    var elifEndPos = Instructions.Fillable();
+                    var elifEndPos = Instructions.FillableInt();
                     Instructions.StartBlock();
                     foreach (var stmt in block.statement())
                     {
@@ -254,8 +268,8 @@ namespace OnTheFly
                     Instructions.EndBlock();
 
                     Instructions.Add(OpCode.JMP);
-                    endPositions.Add(Instructions.Fillable());
-                    Instructions.Fill(elifEndPos, Instructions.Count);
+                    endPositions.Add(Instructions.FillableInt());
+                    Instructions.FillInt(elifEndPos, Instructions.Count);
                 }
             }
 
@@ -270,20 +284,20 @@ namespace OnTheFly
                 Instructions.EndBlock();
             }
 
-            endPositions.ForEach(x => Instructions.Fill(x, Instructions.Count));
+            endPositions.ForEach(x => Instructions.FillInt(x, Instructions.Count));
         }
 
         public override void EnterMethodDefinition(FlyParser.MethodDefinitionContext context)
         {
             Instructions.Add(OpCode.ADD_FUNCTION);
-            Instructions.Add(Instructions.AddString(context.name.Text));
-            Instructions.Add(context._args.Count);
+            Instructions.AddInt(Instructions.AddString(context.name.Text));
+            Instructions.AddInt(context._args.Count);
             foreach (var arg in context._args)
             {
-                Instructions.Add(Instructions.AddString(arg.Text));
+                Instructions.AddInt(Instructions.AddString(arg.Text));
             }
 
-            var endPos = Instructions.Fillable();
+            var endPos = Instructions.FillableInt();
             Instructions.StartBlock();
             foreach (var statement in context.statement())
             {
@@ -292,7 +306,7 @@ namespace OnTheFly
             // EndBlock not required because of the return instruction
 
             Instructions.Add(OpCode.RETURN);
-            Instructions.Fill(endPos, Instructions.Count);
+            Instructions.FillInt(endPos, Instructions.Count);
         }
 
         public override void EnterMethodCall(FlyParser.MethodCallContext context)
@@ -310,7 +324,7 @@ namespace OnTheFly
                     }
 
                     Instructions.Add(OpCode.PRINT_LN);
-                    break;                
+                    break;
                 case "input":
                     Instructions.Add(OpCode.READ_LN);
                     break;
@@ -323,10 +337,11 @@ namespace OnTheFly
                     Instructions.Add(OpCode.COUNT);
                     break;
                 case "remove":
-                    if(expressions.Length != 1)
+                    if (expressions.Length != 1)
                     {
                         throw new Exception($"Arity mismatch, expected 1 got {expressions.Length}");
                     }
+
                     EnterExpression(expressions[0]);
                     Instructions.Add(OpCode.ARRAY_REMOVE);
                     break;
@@ -336,10 +351,12 @@ namespace OnTheFly
                     {
                         throw new Exception($"Arity mismatch, expected 2 got {expressions.Length}");
                     }
+
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
                     }
+
                     Instructions.Add(OpCode.ARRAY_INSERT);
                     break;
                 default:
@@ -349,7 +366,7 @@ namespace OnTheFly
                     }
 
                     Instructions.Add(OpCode.CALL_FUNCTION);
-                    Instructions.Add(Instructions.AddString(name));
+                    Instructions.AddInt(Instructions.AddString(name));
                     break;
             }
         }
@@ -368,43 +385,43 @@ namespace OnTheFly
             {
                 var indexer = Instructions.AddString("@f" + for_recursion++);
                 Instructions.Add(OpCode.LOAD_I32);
-                Instructions.Add(0);
+                Instructions.AddInt(0);
                 Instructions.Add(OpCode.SET_VAR);
-                Instructions.Add(indexer);
+                Instructions.AddInt(indexer);
 
                 var start = Instructions.Count;
                 EnterExpression(context.expression());
                 Instructions.Add(OpCode.COUNT);
                 Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(indexer);
+                Instructions.AddInt(indexer);
                 Instructions.Add(OpCode.SMALLER);
 
                 Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
-                var endPos = Instructions.Fillable(); // Set the end position
+                var endPos = Instructions.FillableInt(); // Set the end position
                 Instructions.StartBlock(); // Start a block for context dependent variables 
                 EnterExpression(context.expression());
                 Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(indexer);
+                Instructions.AddInt(indexer);
                 Instructions.Add(OpCode.ARRAY_GET);
 
                 Instructions.Add(OpCode.SET_VAR);
-                Instructions.Add(Instructions.AddString(context.var.Text));
+                Instructions.AddInt(Instructions.AddString(context.var.Text));
                 foreach (var stmt in context.statement())
                     EnterStatement(stmt);
 
                 Instructions.EndBlock(); // Close the current block
 
                 Instructions.Add(OpCode.GET_VAR);
-                Instructions.Add(indexer);
+                Instructions.AddInt(indexer);
                 Instructions.Add(OpCode.ADD_I1);
 
                 Instructions.Add(OpCode.SET_VAR);
-                Instructions.Add(indexer);
+                Instructions.AddInt(indexer);
 
                 Instructions.Add(OpCode.JMP);
-                Instructions.Add(start);
+                Instructions.AddInt(start);
 
-                Instructions.Fill(endPos, Instructions.Count);
+                Instructions.FillInt(endPos, Instructions.Count);
             }
             else
             {
@@ -412,9 +429,9 @@ namespace OnTheFly
                 EnterExpression(context.expression());
 
                 Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
-                var endPos = Instructions.Fillable(); // Set the end position
+                var endPos = Instructions.FillableInt(); // Set the end position
                 Instructions.Add(OpCode.START_LOOP); // Start a block for context dependent variables 
-                var endPos2 = Instructions.Fillable(); // Set the end position
+                var endPos2 = Instructions.FillableInt(); // Set the end position
 
                 foreach (var stmt in context.statement())
                     EnterStatement(stmt);
@@ -422,10 +439,10 @@ namespace OnTheFly
                 Instructions.EndBlock(); // Close the current block
 
                 Instructions.Add(OpCode.JMP);
-                Instructions.Add(start);
+                Instructions.AddInt(start);
 
-                Instructions.Fill(endPos, Instructions.Count);
-                Instructions.Fill(endPos2, Instructions.Count);
+                Instructions.FillInt(endPos, Instructions.Count);
+                Instructions.FillInt(endPos2, Instructions.Count);
             }
         }
 
@@ -436,17 +453,18 @@ namespace OnTheFly
                 var hasEnd = context.spliceEnd != null;
                 Instructions.Add(OpCode.GET_VAR);
                 var varName = context.var.Text;
-                Instructions.Add(Instructions.AddString(varName));
+                Instructions.AddInt(Instructions.AddString(varName));
                 EnterExpression(context.spliceStart);
                 if (hasEnd)
                     EnterExpression(context.spliceEnd);
                 else
                 {
                     Instructions.Add(OpCode.GET_VAR);
-                    Instructions.Add(Instructions.AddString(varName));
+                    Instructions.AddInt(Instructions.AddString(varName));
                     Instructions.Add(OpCode.COUNT);
                     Instructions.Add(OpCode.SUB_I1);
                 }
+
                 Instructions.Add(OpCode.ARRAY_SPLICE);
             }
             else
@@ -457,6 +475,7 @@ namespace OnTheFly
                     EnterExpression(context.addSize);
                     EnterExpression(context.size);
                 }
+
                 Instructions.Add(big ? OpCode.ARRAY_ADD_BIG : OpCode.ARRAY_ADD);
                 var expressions = context._items;
                 for (int i = 0; i < expressions.Count; i++)
@@ -474,11 +493,11 @@ namespace OnTheFly
             foreach (var package in packages)
             {
                 Instructions.Add(OpCode.IMPORT);
-                Instructions.Add(Instructions.AddString(package.GetText()));
+                Instructions.AddInt(Instructions.AddString(package.GetText()));
                 Imports.Add(package.GetText());
             }
         }
-        
+
         public List<string> Imports = new List<string>();
     }
 }

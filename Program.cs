@@ -14,8 +14,10 @@ namespace OnTheFly
     {
         static void Main(string[] args)
         {
+            var repl = new Repl();
+            repl.Run();
             args = new string[] { "test.txt" };
-            var debug = false;
+            var debug = true;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             if(args.Length < 1 || !File.Exists(args[0]))
             {
@@ -32,7 +34,7 @@ namespace OnTheFly
 
             Console.WriteLine("Starting VM... ");
             Console.ForegroundColor = ConsoleColor.Green;
-            var vm = new VirtualMachine(listener.Instructions);
+            var vm = new VirtualMachine(listener.Instructions, listener.Contexts);
 //            try
 //            {
             var sw = Stopwatch.StartNew();

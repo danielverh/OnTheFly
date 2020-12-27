@@ -4,36 +4,64 @@ using System.Text;
 
 namespace OnTheFly
 {
-    public class Instructions : List<int>
+    public class Instructions : List<byte>
     {
         public List<string> StringConstants { get; set; } = new List<string>();
         public Dictionary<string, int> Functions { get; set; } = new Dictionary<string, int>();
+
         public void Add(OpCode code)
         {
-            base.Add((int) code);
+            Add((byte) code);
         }
 
-        public int Fillable()
+        public void AddInt(int i)
+        {
+            // TODO: Specify endian-ness
+            var items = BitConverter.GetBytes(i);
+            base.AddRange(items);
+        }
+
+        public int FillableByte()
         {
             Add(0);
             return Count - 1;
         }
 
-        public void Fill(int pos, int val)
+        public int FillableInt()
+        {
+            AddInt(0);
+            return Count - 4;
+        }
+
+        public void Fill(int pos, byte val)
         {
             this[pos] = val;
+        }
+
+        public void FillInt(int pos, int val)
+        {
+            var b = BitConverter.GetBytes(val);
+            this[pos] = b[0];
+            this[pos + 1] = b[1];
+            this[pos + 2] = b[2];
+            this[pos + 3] = b[3];
+        }
+
+        public void AddBytes(IEnumerable<byte> b)
+        {
+            base.AddRange(b);
         }
 
         public void LoadInt(string i)
         {
             Add(OpCode.LOAD_I32);
-            base.Add(int.Parse(i));
+            AddInt(int.Parse(i));
         }
 
         public void LoadFloat(string f)
         {
             Add(OpCode.LOAD_F32);
-            base.Add(BitConverter.SingleToInt32Bits(float.Parse(f)));
+            AddBytes(BitConverter.GetBytes(float.Parse(f)));
         }
 
         public int AddString(string str, bool hasQuotes = false)
@@ -49,7 +77,7 @@ namespace OnTheFly
         public void LoadString(int str)
         {
             Add(OpCode.LOAD_STR);
-            Add(str);
+            AddInt(str);
         }
 
         public void AddLoadString(string str, bool hasQuotes = false)
@@ -59,7 +87,7 @@ namespace OnTheFly
 
         public void AddBool(string b)
         {
-            base.Add(b.ToLower() == "true" ? 1 : 0);
+            base.Add((byte) (b.ToLower() == "true" ? 1 : 0));
         }
 
         public void LoadBool(string b)
@@ -67,6 +95,7 @@ namespace OnTheFly
             Add(OpCode.LOAD_BOOL);
             AddBool(b);
         }
+
         /// <summary>
         /// Gives a string representations with
         /// </summary>
@@ -75,8 +104,9 @@ namespace OnTheFly
         {
             var sb = new StringBuilder();
             sb.AppendLine($"INSTRUCTIONS DISASSEMBLED\n");
-            var opCount = 1;
-            for (var i = 0; i < Count; i++)
+            var opCount = 0;
+            var i = 0;
+            for (; i < Count; i++)
             {
                 sb.Append($"{opCount}/{i}. ");
                 var instr = (OpCode) this[i];
@@ -89,13 +119,13 @@ namespace OnTheFly
                         sb.AppendLine("SUBTRACT 1");
                         break;
                     case OpCode.LOAD_I32:
-                        sb.AppendLine($"LOAD_I32 {this[++i]}");
+                        sb.AppendLine($"LOAD_I32 {nextInt()}");
                         break;
                     case OpCode.LOAD_F32:
-                        sb.AppendLine($"LOAD_F32 {BitConverter.Int32BitsToSingle(this[++i])}");
+                        sb.AppendLine($"LOAD_F32 {BitConverter.Int32BitsToSingle(nextInt())}");
                         break;
                     case OpCode.LOAD_STR:
-                        sb.AppendLine($"LOAD_STR '{StringConstants[this[++i]]}'");
+                        sb.AppendLine($"LOAD_STR '{StringConstants[nextInt()]}'");
                         break;
                     case OpCode.LOAD_BOOL:
                         sb.AppendLine("LOAD_BOOL " + (this[++i] == 1 ? "'true'" : "'false'"));
@@ -105,7 +135,7 @@ namespace OnTheFly
                         break;
 
                     case OpCode.CALL_FUNCTION:
-                        string name = StringConstants[this[++i]];
+                        string name = StringConstants[nextInt()];
                         sb.AppendLine($"CALL_FUNCTION {name} with {Functions[name]} arguments");
                         break;
                     case OpCode.ADD_FUNCTION:
@@ -117,16 +147,16 @@ namespace OnTheFly
                             sb.Append(StringConstants[this[++i]] + ", ");
                         }
 
-                        sb.AppendLine($") :{this[++i]}");
+                        sb.AppendLine($") :{nextInt()}");
                         break;
                     case OpCode.JMP:
-                        sb.AppendLine($"JMP: {this[++i]}");
+                        sb.AppendLine($"JMP: {nextInt()}");
                         break;
                     case OpCode.JMP_EQ:
-                        sb.AppendLine($"JMP_WHEN_EQUAL:{this[++i]}");
+                        sb.AppendLine($"JMP_WHEN_EQUAL:{nextInt()}");
                         break;
                     case OpCode.JMP_FALSE:
-                        sb.AppendLine($"JMP_WHEN_NOT_EQUAL :{this[++i]}");
+                        sb.AppendLine($"JMP_WHEN_NOT_EQUAL :{nextInt()}");
                         break;
                     case OpCode.UNINV:
                         sb.AppendLine("UNARY_INVERSE");
@@ -138,10 +168,10 @@ namespace OnTheFly
                         sb.AppendLine("POP");
                         break;
                     case OpCode.SET_VAR:
-                        sb.AppendLine($"SET_VAR {StringConstants[this[++i]]}");
+                        sb.AppendLine($"SET_VAR {StringConstants[nextInt()]}");
                         break;
                     case OpCode.GET_VAR:
-                        sb.AppendLine($"GET_VAR {StringConstants[this[++i]]}");
+                        sb.AppendLine($"GET_VAR {StringConstants[nextInt()]}");
                         break;
                     case OpCode.PRINT:
                         sb.AppendLine("PRINT");
@@ -150,7 +180,7 @@ namespace OnTheFly
                         sb.AppendLine("PRINT_LINE");
                         break;
                     case OpCode.CALL_BUILTIN:
-                        sb.AppendLine($"CALL_BUILTIN {StringConstants[this[++i]]} . {StringConstants[this[++i]]}");
+                        sb.AppendLine($"CALL_BUILTIN {StringConstants[nextInt()]} . {StringConstants[this[++i]]}");
                         break;
                     case OpCode.RETURN:
                         sb.AppendLine("RETURN");
@@ -159,7 +189,7 @@ namespace OnTheFly
                         sb.AppendLine("START_BLOCK");
                         break;
                     case OpCode.START_LOOP:
-                        sb.AppendLine($"START_LOOP with end at:{this[++i]}");
+                        sb.AppendLine($"START_LOOP with end at:{nextInt()}");
                         break;
                     case OpCode.END_BLOCK:
                         sb.AppendLine("END_BLOCK");
@@ -198,10 +228,11 @@ namespace OnTheFly
                         sb.AppendLine($"ARRAY_INSERT");
                         break;
                     case OpCode.ARRAY_PUSH_LOT:
-                        sb.AppendLine($"ARRAY_PUSH_LOT {this[++i]}");
+                        sb.AppendLine($"ARRAY_PUSH_LOT {nextInt()}");
                         break;
                     case OpCode.IMPORT:
-                        sb.AppendLine($"IMPORT {StringConstants[this[++i]]}");
+                        var t = nextInt();
+                        sb.AppendLine($"IMPORT {StringConstants[t]}");
                         break;
                     case OpCode.BREAK:
                         sb.AppendLine("BREAK");
@@ -216,6 +247,20 @@ namespace OnTheFly
 
             sb.AppendLine("\n----------\n");
             return sb.ToString();
+
+            int nextInt()
+            {
+                opCount += 4;
+                return BitConverter.ToInt32(new[] {this[++i], this[++i], this[++i], this[++i]});
+            }
+        }
+
+        public void AddRange(Instructions i)
+        {
+            base.AddRange(i);
+            foreach (var (key, value) in i.Functions)
+                Functions.Add(key, value);
+            StringConstants = i.StringConstants;
         }
 
         public void StartBlock() => Add(OpCode.START_BLOCK);
@@ -265,7 +310,9 @@ namespace OnTheFly
         ADD_ARGUMENT,
         RETURN,
         BREAK,
-        START_BLOCK, END_BLOCK, START_LOOP,
+        START_BLOCK,
+        END_BLOCK,
+        START_LOOP,
 
         JMP,
         JMP_EQ,
