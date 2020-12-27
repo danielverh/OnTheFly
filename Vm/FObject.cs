@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Helpers;
+// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
 namespace OnTheFly
 {

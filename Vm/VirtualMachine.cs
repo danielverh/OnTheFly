@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -12,9 +13,9 @@ namespace OnTheFly
 {
     public class VirtualMachine
     {
-        private int[] instructions;
+        private readonly int[] instructions;
 
-        private string[] constants;
+        private readonly string[] constants;
 
         // TODO: Add garbage collector
         public static List<object> Heap = new List<object>();
@@ -24,7 +25,17 @@ namespace OnTheFly
         private int pc;
         private Dictionary<string, FObject> globals = new Dictionary<string, FObject>();
         private Dictionary<string, FFunction> functions = new Dictionary<string, FFunction>(255);
-
+        private TextReader consoleIn;
+        private TextWriter consoleOut;
+        public VirtualMachine(Instructions _instructions, TextReader _in, TextWriter _out) : this(_instructions)
+        {
+            consoleIn = _in;
+            consoleOut = _out;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_instructions"></param>
         public VirtualMachine(Instructions _instructions)
         {
             instructions = _instructions.ToArray();
@@ -35,6 +46,8 @@ namespace OnTheFly
             blockStack.Push(new FBlock(globals));
             callStack.Push(new FCall(null, 0));
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            consoleIn = Console.In;
+            consoleOut = Console.Out;
         }
 
         public void Run()
@@ -166,13 +179,13 @@ namespace OnTheFly
                         opStack.Push(opStack.Peek());
                         break;
                     case OpCode.PRINT:
-                        Console.Write(opStack.Pop());
+                        consoleOut.Write(opStack.Pop());
                         break;
                     case OpCode.READ_LN:
-                        opStack.Push(FObject.NewString(Console.ReadLine()));
+                        opStack.Push(FObject.NewString(consoleIn.ReadLine()));
                         break;
                     case OpCode.PRINT_LN:
-                        Console.WriteLine();
+                        consoleOut.WriteLine();
                         break;
                     case OpCode.START_BLOCK:
                         blockStack.Push(new FBlock(globals));

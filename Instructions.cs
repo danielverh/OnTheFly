@@ -67,7 +67,10 @@ namespace OnTheFly
             Add(OpCode.LOAD_BOOL);
             AddBool(b);
         }
-
+        /// <summary>
+        /// Gives a string representations with
+        /// </summary>
+        /// <returns></returns>
         public string Disassemble()
         {
             var sb = new StringBuilder();
@@ -79,44 +82,11 @@ namespace OnTheFly
                 var instr = (OpCode) this[i];
                 switch (instr)
                 {
-                    case OpCode.ADD:
-                        sb.AppendLine("ADD");
-                        break;
-                    case OpCode.MOD:
-                        sb.AppendLine("MOD");
-                        break;
-                    case OpCode.SUB:
-                        sb.AppendLine("SUBTRACT");
-                        break;
-                    case OpCode.MUL:
-                        sb.AppendLine("MULTIPLY");
-                        break;
-                    case OpCode.DIV:
-                        sb.AppendLine("DIVIDE");
-                        break;
                     case OpCode.ADD_I1:
                         sb.AppendLine("ADD 1");
                         break;
                     case OpCode.SUB_I1:
                         sb.AppendLine("SUBTRACT 1");
-                        break;
-                    case OpCode.EQUALS:
-                        sb.AppendLine("EQUALS");
-                        break;
-                    case OpCode.NOT_EQ:
-                        sb.AppendLine("NOT_EQ");
-                        break;
-                    case OpCode.SMALLER:
-                        sb.AppendLine("SMALLER");
-                        break;
-                    case OpCode.LARGER:
-                        sb.AppendLine("LARGER");
-                        break;
-                    case OpCode.SMALLER_EQ:
-                        sb.AppendLine("SMALLER_EQ");
-                        break;
-                    case OpCode.LARGER_EQ:
-                        sb.AppendLine("LARGER_EQ");
                         break;
                     case OpCode.LOAD_I32:
                         sb.AppendLine($"LOAD_I32 {this[++i]}");
@@ -237,7 +207,8 @@ namespace OnTheFly
                         sb.AppendLine("BREAK");
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        sb.AppendLine(instr.ToString());
+                        break;
                 }
 
                 opCount++;

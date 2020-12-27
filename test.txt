@@ -6,6 +6,7 @@ for i < 100000{
 	arr[i] = i;
 	i += 1;
 }
+print(5);
 /*
 my_int = 0;
 my_float = 1.0;
