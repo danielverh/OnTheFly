@@ -276,20 +276,20 @@ namespace OnTheFly
                 case FObjectType.Int:
                     return target switch
                     {
-                        FObjectType.Float => new FObject {Type = target, F32 = (float)I32},
+                        FObjectType.Float => new FObject {Type = target, F32 = (float) I32},
                         _ => throw new InvalidOperationException()
                     };
                 case FObjectType.Float:
                     return target switch
                     {
-                        FObjectType.Int => new FObject() {Type = target, I32 = (int) F32},
+                        FObjectType.Int => new FObject {Type = target, I32 = (int) F32},
                         _ => throw new InvalidOperationException()
                     };
                 case FObjectType.Bool:
                     return target switch
                     {
-                        FObjectType.Float => new FObject() {Type = target, F32 = BOOL ? 1 : 0},
-                        FObjectType.Int => new FObject() {Type = target, I32 = BOOL ? 1 : 0},
+                        FObjectType.Float => new FObject {Type = target, F32 = BOOL ? 1 : 0},
+                        FObjectType.Int => new FObject {Type = target, I32 = BOOL ? 1 : 0},
                         _ => throw new InvalidOperationException()
                     };
                 default:
@@ -299,10 +299,10 @@ namespace OnTheFly
 
         [FieldOffset(0)] public FObjectType Type;
 
-        [FieldOffset(8)] public int I32;
-        [FieldOffset(8)] public bool BOOL;
-        [FieldOffset(8)] public float F32;
-        [FieldOffset(8)] public int PTR;
+        [FieldOffset(4)] public int I32;
+        [FieldOffset(4)] public bool BOOL;
+        [FieldOffset(4)] public float F32;
+        [FieldOffset(4)] public int PTR;
 
         public override string ToString()
         {
