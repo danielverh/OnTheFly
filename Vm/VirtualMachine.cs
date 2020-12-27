@@ -315,18 +315,28 @@ namespace OnTheFly.Vm
             return (OpCode) Instructions[pc++];
         }
 
+        /// <summary>
+        /// Take 4 bytes from the instructions, move the pc by 4, and convert those bytes into an integer
+        /// </summary>
+        /// <returns></returns>
         private int NextInt()
         {
             return BitConverter.ToInt32(new[]
                 {Instructions[pc++], Instructions[pc++], Instructions[pc++], Instructions[pc++]});
         }
-
+        /// <summary>
+        /// Take 4 bytes from the instructions, move the pc by 4, and convert those bytes into a float
+        /// </summary>
+        /// <returns></returns>
         private float NextFloat()
         {
             return BitConverter.ToSingle(new[]
                 {Instructions[pc++], Instructions[pc++], Instructions[pc++], Instructions[pc++]});
         }
-
+        /// <summary>
+        /// Execute <c>Run()</c> on current VirtualMachine instance
+        /// </summary>
+        /// <returns>The operation stack topmost item, or Nil if there are no items on the stack</returns>
         public FObject EvalRun()
         {
             Run();

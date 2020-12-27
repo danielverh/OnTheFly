@@ -5,6 +5,9 @@ using System.Text;
 
 namespace OnTheFly.Vm
 {
+    /// <summary>
+    /// The FBlock class keeps track of the context required for function and variable scopes
+    /// </summary>
     internal class FBlock
     {
         private readonly Dictionary<string, FObject> _vars;

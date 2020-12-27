@@ -11,6 +11,9 @@ using OnTheFly.Vm.Helpers;
 
 namespace OnTheFly
 {
+    /// <summary>
+    /// FObject is the dynamic object used in FlyLang
+    /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     public struct FObject
     {
@@ -35,6 +38,11 @@ namespace OnTheFly
 
         public static FObject Nil() => new FObject {Type = FObjectType.Nil, BOOL = false};
 
+        /// <summary>
+        /// Check if the object is <c>true</c>. If the object is of type <c>Bool</c>, return its corresponding value.
+        /// Otherwise return true, except when the object is <c>nil</c>
+        /// </summary>
+        /// <returns></returns>
         public bool True()
         {
             if (Type == FObjectType.Bool)
@@ -43,7 +51,11 @@ namespace OnTheFly
                 return false;
             return true;
         }
-
+        /// <summary>
+        /// Negate the FObject
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
         public static FObject operator !(FObject r)
         {
             switch (r.Type)
@@ -61,7 +73,12 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        /// <summary>
+        /// Add two FObjects, using automatic type casting.
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator +(FObject l, FObject r)
         {
             switch (l.Type)
@@ -90,7 +107,12 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        /// <summary>
+        /// Subtract two FObjects, using automatic type casting.
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator -(FObject l, FObject r)
         {
             switch (l.Type)
@@ -104,7 +126,12 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        /// <summary>
+        /// Multiply two FObjects, using automatic type casting.
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator *(FObject l, FObject r)
         {
             switch (l.Type)
@@ -119,7 +146,12 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        /// <summary>
+        /// Divide two FObjects, using automatic type casting.
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator /(FObject l, FObject r)
         {
             switch (l.Type)
@@ -139,7 +171,12 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        /// <summary>
+        /// True if l is greater than r
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator >(FObject l, FObject r)
         {
             switch (l.Type)
@@ -156,7 +193,12 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
-
+        /// <summary>
+        /// True if l is smaller than r
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator <(FObject l, FObject r)
         {
             switch (l.Type)
@@ -173,7 +215,12 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
-
+        /// <summary>
+        /// True if l is smaller or equal compared to r
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator <=(FObject l, FObject r)
         {
             switch (l.Type)
@@ -190,7 +237,12 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
-
+        /// <summary>
+        /// True if l is greater or equal compared to r
+        /// </summary>
+        /// <param name="l">Left object in the expression</param>
+        /// <param name="r">Right object in the expression</param>
+        /// <returns></returns>
         public static FObject operator >=(FObject l, FObject r)
         {
             switch (l.Type)
@@ -207,7 +259,12 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
-
+        /// <summary>
+        /// Cast the current object to a given FObjectType.
+        /// </summary>
+        /// <param name="target">The target FObjectType</param>
+        /// <returns>A new instance of the FObject with target as it FObjectType</returns>
+        /// <exception cref="InvalidOperationException">Throw an exception if automatic type casting fails.</exception>
         public FObject Cast(FObjectType target)
         {
             if (Type == target)

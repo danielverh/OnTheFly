@@ -4,6 +4,9 @@ using System.Text;
 
 namespace OnTheFly.Vm.Runtime
 {
+    /// <summary>
+    /// This library maps functions to C# built-in Math functions
+    /// </summary>
     public class MathLib : FLibrary
     {
         internal delegate float SingleFOp(float inp);
