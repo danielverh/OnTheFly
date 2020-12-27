@@ -243,9 +243,11 @@ namespace OnTheFly.Vm
                             break;
                         case OpCode.ARRAY_REMOVE:
                             index = opStack.Pop(); // has to be int
-                            arr = opStack.Pop().Array();
+                            var ptrObj = opStack.Pop();
+                            arr = ptrObj.Array();
                             arr.Remove(index.I32);
                             arr.pos--;
+                            opStack.Push(ptrObj);
                             break;
                         case OpCode.ARRAY_INSERT:
                             index = opStack.Pop();
