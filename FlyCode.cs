@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime;
 using FlyLang;
 using OnTheFly.Code;
+using OnTheFly.Vm;
 
 namespace OnTheFly
 {
@@ -18,6 +19,12 @@ namespace OnTheFly
             var listener = new Listener();
             listener.EnterProgram(parser.program());
             return (listener.Instructions, listener.Contexts);
+        }
+
+        public static FObject RunEval(Instructions instructions, CodeContexts contexts)
+        {
+            VirtualMachine vm = new VirtualMachine(instructions, contexts);
+            return vm.EvalRun();
         }
     }
 }

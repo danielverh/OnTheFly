@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Helpers;
+
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
 namespace OnTheFly
@@ -24,13 +25,16 @@ namespace OnTheFly
             VirtualMachine.Heap.Add(str);
             return o;
         }
+
         public static FObject NewArray(FArray array)
         {
             var o = new FObject {Type = FObjectType.Array, PTR = VirtualMachine.Heap.Count};
             VirtualMachine.Heap.Add(array);
             return o;
         }
+
         public static FObject Nil() => new FObject {Type = FObjectType.Nil, BOOL = false};
+
         public bool True()
         {
             if (Type == FObjectType.Bool)
@@ -66,6 +70,14 @@ namespace OnTheFly
                     return new FObject {Type = FObjectType.Int, I32 = l.I32 + r.I32};
                 case FObjectType.Float when r.Type == FObjectType.Float:
                     return new FObject {Type = FObjectType.Float, F32 = l.F32 + r.F32};
+                case FObjectType.Int when r.Type == FObjectType.Float:
+                case FObjectType.Float when r.Type == FObjectType.Int:
+                    l = l.Cast(FObjectType.Float);
+                    r = r.Cast(FObjectType.Float);
+                    return new FObject
+                    {
+                        Type = FObjectType.Float, F32 = l.F32 + r.F32
+                    };
                 case FObjectType.Array:
                     l.Array().Push(r);
                     return l;
@@ -116,11 +128,18 @@ namespace OnTheFly
                     return new FObject {Type = FObjectType.Int, I32 = l.I32 / r.I32};
                 case FObjectType.Float when r.Type == FObjectType.Float:
                     return new FObject {Type = FObjectType.Float, F32 = l.F32 / r.F32};
+                case FObjectType.Float when r.Type == FObjectType.Int:
+                    return new FObject
+                        {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 / r.Cast(FObjectType.Float).F32};
+                case FObjectType.Int when r.Type == FObjectType.Float:
+                    return new FObject
+                        {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 / r.Cast(FObjectType.Float).F32};
                 case FObjectType.String when r.Type == FObjectType.String:
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+
         public static FObject operator >(FObject l, FObject r)
         {
             switch (l.Type)
@@ -137,6 +156,7 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
+
         public static FObject operator <(FObject l, FObject r)
         {
             switch (l.Type)
@@ -153,7 +173,8 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
-        public static FObject operator <= (FObject l, FObject r)
+
+        public static FObject operator <=(FObject l, FObject r)
         {
             switch (l.Type)
             {
@@ -169,6 +190,7 @@ namespace OnTheFly
                     throw new InvalidOperationException();
             }
         }
+
         public static FObject operator >=(FObject l, FObject r)
         {
             switch (l.Type)
@@ -183,6 +205,38 @@ namespace OnTheFly
                     return NewBool(l.F32 >= r.F32);
                 default:
                     throw new InvalidOperationException();
+            }
+        }
+
+        public FObject Cast(FObjectType target)
+        {
+            if (Type == target)
+                return this;
+            switch (Type)
+            {
+                case FObjectType.Nil:
+                    return new FObject {Type = target};
+                case FObjectType.Int:
+                    return target switch
+                    {
+                        FObjectType.Float => new FObject {Type = target, F32 = (float)I32},
+                        _ => throw new InvalidOperationException()
+                    };
+                case FObjectType.Float:
+                    return target switch
+                    {
+                        FObjectType.Int => new FObject() {Type = target, I32 = (int) F32},
+                        _ => throw new InvalidOperationException()
+                    };
+                case FObjectType.Bool:
+                    return target switch
+                    {
+                        FObjectType.Float => new FObject() {Type = target, F32 = BOOL ? 1 : 0},
+                        FObjectType.Int => new FObject() {Type = target, I32 = BOOL ? 1 : 0},
+                        _ => throw new InvalidOperationException()
+                    };
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -269,6 +323,7 @@ namespace OnTheFly
 
                 return new FArray(l);
             }
+
             throw new Exception();
         }
 

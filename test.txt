@@ -1,8 +1,23 @@
-﻿my_array = ["Item 1", "Item 2"];
-
-for item in my_array {
-	print(item);
+﻿box add(a, b){
+	return a + b;
 }
+
+print(add(5, 20));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 import math, text;

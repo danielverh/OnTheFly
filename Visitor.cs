@@ -238,13 +238,13 @@ namespace OnTheFly
             Instructions.Add(OpCode.JMP_FALSE);
             // Create an empty parameter which should be the end of the statement
             var ifEndPos = Instructions.FillableInt();
-            Instructions.StartBlock();
-            foreach (var statement in context._if)
+            Instructions.Block(() =>
             {
-                EnterStatement(statement);
-            }
-
-            Instructions.EndBlock();
+                foreach (var statement in context._if)
+                {
+                    EnterStatement(statement);
+                }
+            });
             Instructions.Add(OpCode.JMP);
             endPositions.Add(Instructions.FillableInt());
 
@@ -259,13 +259,13 @@ namespace OnTheFly
                     EnterExpression(expr);
                     Instructions.Add(OpCode.JMP_FALSE);
                     var elifEndPos = Instructions.FillableInt();
-                    Instructions.StartBlock();
-                    foreach (var stmt in block.statement())
+                    Instructions.Block(() =>
                     {
-                        EnterStatement(stmt);
-                    }
-
-                    Instructions.EndBlock();
+                        foreach (var stmt in block.statement())
+                        {
+                            EnterStatement(stmt);
+                        }
+                    });
 
                     Instructions.Add(OpCode.JMP);
                     endPositions.Add(Instructions.FillableInt());
@@ -275,13 +275,13 @@ namespace OnTheFly
 
             if (context._else.Count > 0)
             {
-                Instructions.StartBlock();
-                foreach (var statement in context._else)
+                Instructions.Block(() =>
                 {
-                    EnterStatement(statement);
-                }
-
-                Instructions.EndBlock();
+                    foreach (var statement in context._else)
+                    {
+                        EnterStatement(statement);
+                    }
+                });
             }
 
             endPositions.ForEach(x => Instructions.FillInt(x, Instructions.Count));
@@ -298,14 +298,17 @@ namespace OnTheFly
             }
 
             var endPos = Instructions.FillableInt();
-            Instructions.StartBlock();
-            foreach (var statement in context.statement())
+            Instructions.Block(() =>
             {
-                EnterStatement(statement);
-            }
-            // EndBlock not required because of the return instruction
+                foreach (var statement in context.statement())
+                {
+                    EnterStatement(statement);
+                }
 
-            Instructions.Add(OpCode.RETURN);
+                Instructions.Add(OpCode.RETURN);
+            });
+
+
             Instructions.FillInt(endPos, Instructions.Count);
         }
 

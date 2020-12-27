@@ -14,7 +14,7 @@ namespace OnTheFly
     {
         static void Main(string[] args)
         {
-            var repl = new Repl();
+            var repl = new VirtualMachine.Repl();
             repl.Run();
             args = new string[] { "test.txt" };
             var debug = true;
@@ -28,9 +28,11 @@ namespace OnTheFly
             var parser = new FlyParser(new CommonTokenStream(lexer));
             var listener = new Listener();
             listener.EnterProgram(parser.program());
-            var disassemble = listener.Instructions.Disassemble();
             if (debug)
+            {
+                var disassemble = listener.Instructions.Disassemble();
                 Console.Write(disassemble);
+            }
 
             Console.WriteLine("Starting VM... ");
             Console.ForegroundColor = ConsoleColor.Green;

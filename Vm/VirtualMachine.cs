@@ -10,13 +10,13 @@ using OnTheFly.Code;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Runtime;
 
-namespace OnTheFly
+namespace OnTheFly.Vm
 {
-    public class VirtualMachine
+    public partial class VirtualMachine
     {
         public Instructions Instructions;
 
-        public string[] constants;
+        public StringConstants constants;
 
         // TODO: Add garbage collector
         public static List<object> Heap = new List<object>();
@@ -26,7 +26,7 @@ namespace OnTheFly
         private Stack<FBlock> blockStack;
         private int pc;
         private Dictionary<string, FObject> globals = new Dictionary<string, FObject>();
-        private Dictionary<string, FFunction> functions = new Dictionary<string, FFunction>(255);
+        private Functions functions = new Functions(255);
         private TextReader consoleIn;
         private TextWriter consoleOut;
 
@@ -37,15 +37,11 @@ namespace OnTheFly
             consoleOut = _out;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="_instructions"></param>
         public VirtualMachine(Instructions _instructions, CodeContexts _contexts)
         {
             DebugContexts = _contexts;
             Instructions = _instructions;
-            constants = _instructions.StringConstants.ToArray();
+            constants = new StringConstants(_instructions.StringConstants.ToArray());
             opStack = new Stack<FObject>(1024);
             callStack = new Stack<FCall>(128);
             blockStack = new Stack<FBlock>(256);
@@ -56,15 +52,18 @@ namespace OnTheFly
             consoleOut = Console.Out;
         }
 
-        public void AddCode(Instructions i, CodeContexts c)
-        {
-            Instructions.AddRange(i);
-            DebugContexts.AddRange(c);
-        }
+        /// <summary>
+        /// Runs the virtual machine
+        /// </summary>
         public void Run()
         {
-            // try
-            // {
+#if !DEBUG
+
+            try
+            {
+#endif
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            
                 while (pc < Instructions.Count)
                 {
                     OpCode cCode = NextOperation();
@@ -153,6 +152,7 @@ namespace OnTheFly
                             break;
                         case OpCode.CALL_FUNCTION:
                             name = constants[NextInt()];
+                            functions.Exists(name);
                             function = functions[name];
                             for (int j = 0; j < function.Arity; j++)
                             {
@@ -175,7 +175,8 @@ namespace OnTheFly
                         case OpCode.RETURN:
                             var call = callStack.Pop();
                             pc = call.CalledAt;
-                            blockStack.Pop().Close();
+                            // blockStack.Pop().Close();
+                            // END_BLOCK is now required after RETURN
                             break;
                         case OpCode.JMP_EQ:
                             if (opStack.Pop().True())
@@ -277,16 +278,19 @@ namespace OnTheFly
                             break;
                     }
                 }
-            // }
-            // catch (Exception e)
-            // {
-                // var ctx = DebugContexts.Where(x => pc < x.OpCodeEnd && pc > x.OpCodeStart)
-                    // .OrderBy(x => x.OpCodeEnd - x.OpCodeStart).FirstOrDefault();
-                // if (ctx != null)
-                    // throw new Exception($"Error '{e.GetType().Name}' at code '{ctx.Code}' (line: {ctx.Line}, pos: {ctx.Position}).\n" +
-                                              // $"At bytecode {ctx.OpCodeStart}-{ctx.OpCodeEnd}.", e);
-                // throw;
-            // }
+#if !DEBUG
+            }
+            catch (Exception e)
+            {
+                var ctx = DebugContexts.Where(x => pc < x.OpCodeEnd && pc > x.OpCodeStart)
+                    .OrderBy(x => x.OpCodeEnd - x.OpCodeStart).FirstOrDefault();
+                if (ctx != null)
+                    throw new Exception(
+                        $"Error '{e.GetType().Name}' at code '{ctx.Code}' (line: {ctx.Line}, pos: {ctx.Position}).\n" +
+                        $"At bytecode {ctx.OpCodeStart}-{ctx.OpCodeEnd}.", e);
+                throw;
+            }
+#endif
         }
 
         private Dictionary<string, FLibrary> libraries = new Dictionary<string, FLibrary>(16);
@@ -319,6 +323,14 @@ namespace OnTheFly
         {
             return BitConverter.ToSingle(new[]
                 {Instructions[pc++], Instructions[pc++], Instructions[pc++], Instructions[pc++]});
+        }
+
+        public FObject EvalRun()
+        {
+            Run();
+            if (opStack.Count > 0)
+                return opStack.Pop();
+            return FObject.Nil();
         }
     }
 }

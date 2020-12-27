@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OnTheFly
@@ -9,35 +10,56 @@ namespace OnTheFly
         public List<string> StringConstants { get; set; } = new List<string>();
         public Dictionary<string, int> Functions { get; set; } = new Dictionary<string, int>();
 
+        /// <summary>
+        /// Add an OpCode to the instruction list (as a byte).
+        /// </summary>
+        /// <param name="code"></param>
         public void Add(OpCode code)
         {
             Add((byte) code);
         }
-
+        /// <summary>
+        /// Add an integer to the instruction list (as 4 bytes).
+        /// </summary>
+        /// <param name="i"></param>
         public void AddInt(int i)
         {
             // TODO: Specify endian-ness
             var items = BitConverter.GetBytes(i);
             base.AddRange(items);
         }
-
+        /// <summary>
+        /// Returns the position of a byte with a null value, which can be filled in later using <c>Fill()</c>.
+        /// </summary>
+        /// <returns></returns>
         public int FillableByte()
         {
             Add(0);
             return Count - 1;
         }
-
+        /// <summary>
+        /// Returns the position of a byte with a null value, which can be filled in later using <c>FillInt()</c>.
+        /// </summary>
+        /// <returns></returns>
         public int FillableInt()
         {
             AddInt(0);
             return Count - 4;
         }
-
+        /// <summary>
+        /// Replace the value at position <c>pos</c> with byte <c>val</c>
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="val"></param>
         public void Fill(int pos, byte val)
         {
             this[pos] = val;
         }
-
+        /// <summary>
+        /// Replace four bytes starting at position <c>pos</c> with the value from int <c>val</c>
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="val"></param>
         public void FillInt(int pos, int val)
         {
             var b = BitConverter.GetBytes(val);
@@ -46,7 +68,10 @@ namespace OnTheFly
             this[pos + 2] = b[2];
             this[pos + 3] = b[3];
         }
-
+        /// <summary>
+        /// Add a series of bytes to the list
+        /// </summary>
+        /// <param name="b"></param>
         public void AddBytes(IEnumerable<byte> b)
         {
             base.AddRange(b);
@@ -61,7 +86,7 @@ namespace OnTheFly
         public void LoadFloat(string f)
         {
             Add(OpCode.LOAD_F32);
-            AddBytes(BitConverter.GetBytes(float.Parse(f)));
+            AddRange(BitConverter.GetBytes(float.Parse(f, CultureInfo.InvariantCulture)));
         }
 
         public int AddString(string str, bool hasQuotes = false)
@@ -139,12 +164,12 @@ namespace OnTheFly
                         sb.AppendLine($"CALL_FUNCTION {name} with {Functions[name]} arguments");
                         break;
                     case OpCode.ADD_FUNCTION:
-                        name = StringConstants[this[++i]];
+                        name = StringConstants[nextInt()];
                         sb.Append($"ADD_FUNCTION {name}(");
-                        var argCount = Functions[name] = this[++i];
+                        var argCount = Functions[name] = nextInt();
                         for (var j = 0; j < argCount; j++)
                         {
-                            sb.Append(StringConstants[this[++i]] + ", ");
+                            sb.Append(StringConstants[nextInt()] + ", ");
                         }
 
                         sb.AppendLine($") :{nextInt()}");
@@ -255,14 +280,13 @@ namespace OnTheFly
             }
         }
 
-        public void AddRange(Instructions i)
-        {
-            base.AddRange(i);
-            foreach (var (key, value) in i.Functions)
-                Functions.Add(key, value);
-            StringConstants = i.StringConstants;
-        }
 
+        public void Block(Action inBlock)
+        {
+            StartBlock();
+            inBlock.Invoke();
+            EndBlock();
+        }
         public void StartBlock() => Add(OpCode.START_BLOCK);
         public void EndBlock() => Add(OpCode.END_BLOCK);
     }
@@ -306,7 +330,7 @@ namespace OnTheFly
 
         CALL_BUILTIN,
         CALL_FUNCTION,
-        ADD_FUNCTION,
+        ADD_FUNCTION, // <arity n> | n * arg name with string constant | end position
         ADD_ARGUMENT,
         RETURN,
         BREAK,
