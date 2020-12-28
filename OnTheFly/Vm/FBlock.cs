@@ -25,6 +25,10 @@ namespace OnTheFly.Vm
             }
         }
 
+        public bool Contains(string key)
+        {
+            return _vars.ContainsKey(key);
+        }
         public FBlock(Dictionary<string, FObject> vars, bool loop = false, int endPos =0)
         {
             _vars = vars;

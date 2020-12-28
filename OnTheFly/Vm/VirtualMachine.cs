@@ -19,7 +19,7 @@ namespace OnTheFly.Vm
         public StringConstants constants;
 
         // TODO: Add garbage collector
-        public static List<object> Heap = new List<object>();
+        public static MemoryHeap Heap = new MemoryHeap();
         public CodeContexts DebugContexts;
         private Stack<FObject> opStack;
         private Stack<FCall> callStack;
@@ -63,8 +63,10 @@ namespace OnTheFly.Vm
             {
 #endif
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            FObject res;
-                while (pc < Instructions.Count)
+            FObject res, indexObj;
+            int index;
+            string key;
+            while (pc < Instructions.Count)
                 {
                     OpCode cCode = NextOperation();
                     switch (cCode)
@@ -80,14 +82,17 @@ namespace OnTheFly.Vm
                             opStack.Push(FObject.NewBool(NextInt() == 1));
                             break;
                         case OpCode.LOAD_STR:
-                            Heap.Add(constants[NextInt()]);
-                            opStack.Push(FObject.NewString(Heap.Count - 1));
+                            opStack.Push(FObject.NewString(Heap.Add(constants[NextInt()])));
                             break;
                         case OpCode.LOAD_NIL:
                             opStack.Push(FObject.Nil());
                             break;
                         case OpCode.SET_VAR:
-                            res = blockStack.Peek()[constants[NextInt()]] = opStack.Pop();
+                            index = NextInt();
+                            key = constants[index];
+                            if (blockStack.Peek().Contains(key))
+                                Garbage.Mark(blockStack.Peek()[key]);
+                            res = blockStack.Peek()[constants[index]] = opStack.Pop();
                             opStack.Push(res);
                             break;
                         case OpCode.GET_VAR:
@@ -221,14 +226,14 @@ namespace OnTheFly.Vm
                             ));
                             break;
                         case OpCode.ARRAY_GET:
-                            var index = opStack.Pop();
+                            indexObj = opStack.Pop();
                             var arr = opStack.Pop().Array();
-                            opStack.Push(arr.Get(index.I32));
+                            opStack.Push(arr.Get(indexObj.I32));
                             break;
                         case OpCode.ARRAY_PUSH:
                             var val = opStack.Pop();
                             var ptr = opStack.Pop().PTR;
-                            ((FArray) Heap[ptr]).Push(val);
+                            ((FArray) Heap.Get(ptr)).Push(val);
                             break;
                         case OpCode.ARRAY_SPLICE:
                             var to = opStack.Pop(); //
@@ -238,23 +243,23 @@ namespace OnTheFly.Vm
                             break;
                         case OpCode.ARRAY_SET:
                             arr = opStack.Pop().Array();
-                            index = opStack.Pop();
+                            indexObj = opStack.Pop();
                             val = opStack.Pop();
-                            arr.items[index.I32] = val;
+                            arr.items[indexObj.I32] = val;
                             break;
                         case OpCode.ARRAY_REMOVE:
-                            index = opStack.Pop(); // has to be int
+                            indexObj = opStack.Pop(); // has to be int
                             var ptrObj = opStack.Pop();
                             arr = ptrObj.Array();
-                            arr.Remove(index.I32);
+                            arr.Remove(indexObj.I32);
                             arr.pos--;
                             opStack.Push(ptrObj);
                             break;
                         case OpCode.ARRAY_INSERT:
-                            index = opStack.Pop();
+                            indexObj = opStack.Pop();
                             val = opStack.Pop();
                             arr = opStack.Pop().Array();
-                            arr.Insert(index.IsInt(), val);
+                            arr.Insert(indexObj.IsInt(), val);
                             break;
                         case OpCode.COUNT:
                             opStack.Push(opStack.Pop().Count());
@@ -280,6 +285,7 @@ namespace OnTheFly.Vm
                             Import(constants[NextInt()]);
                             break;
                     }
+                    Garbage.ConditionalClean();
                 }
 #if !DEBUG
             }
@@ -348,9 +354,35 @@ namespace OnTheFly.Vm
 
         public static class Garbage
         {
-            public static void Mark()
+            public static long Threshold { get; set; } = 0xa00000; // 10mb
+            private static readonly Queue<FObject> pending = new Queue<FObject>();
+            private static long increase; // Increase in bytes since last clean() cycle.
+            private static long old;
+            public static void Mark(FObject obj)
             {
-                
+                pending.Enqueue(obj);
+            }
+
+            /// <summary>
+            /// Run a clean cycle if the memory-usage increase threshold has been reached. Also updates the increase value.
+            /// </summary>
+            public static void ConditionalClean()
+            {
+                if (old == 0)
+                    old = GC.GetTotalMemory(false);
+                increase = GC.GetTotalMemory(false) - old;
+                if (increase > Threshold)
+                    Clean();
+            }
+            public static void Clean()
+            {
+                while (pending.Count > 0)
+                {
+                    var fobj = pending.Dequeue();
+                    fobj.Dispose();
+                }
+                increase = 0;
+                old = GC.GetTotalMemory(false);
             }
         }
     }

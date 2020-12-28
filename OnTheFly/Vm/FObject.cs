@@ -15,7 +15,7 @@ namespace OnTheFly
     /// FObject is the dynamic object used in FlyLang
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    public struct FObject
+    public struct FObject : IDisposable
     {
         public static FObject NewI32(int i) => new FObject {Type = FObjectType.Int, I32 = i};
         public static FObject NewF32(float i) => new FObject {Type = FObjectType.Float, F32 = i};
@@ -24,15 +24,15 @@ namespace OnTheFly
 
         public static FObject NewString(string str)
         {
-            var o = new FObject {Type = FObjectType.String, PTR = VirtualMachine.Heap.Count};
-            VirtualMachine.Heap.Add(str);
+            var o = new FObject {Type = FObjectType.String, PTR = VirtualMachine.Heap.Add(str)};
+            ;
             return o;
         }
 
         public static FObject NewArray(FArray array)
         {
-            var o = new FObject {Type = FObjectType.Array, PTR = VirtualMachine.Heap.Count};
-            VirtualMachine.Heap.Add(array);
+            var o = new FObject {Type = FObjectType.Array, PTR = VirtualMachine.Heap.Add(array)};
+            ;
             return o;
         }
 
@@ -141,7 +141,7 @@ namespace OnTheFly
                 case FObjectType.Float when r.Type == FObjectType.Float:
                     return new FObject {Type = FObjectType.Float, F32 = l.F32 * r.F32};
                 case FObjectType.String when r.Type == FObjectType.Int:
-                    return NewString(VirtualMachine.Heap[l.PTR].ToString().Repeat(r.I32));
+                    return NewString(VirtualMachine.Heap.Get(l.PTR).ToString().Repeat(r.I32));
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -317,9 +317,9 @@ namespace OnTheFly
                 case FObjectType.Nil:
                     return "<nil>";
                 case FObjectType.String:
-                    return VirtualMachine.Heap[PTR].ToString();
+                    return VirtualMachine.Heap.Get(PTR).ToString();
                 case FObjectType.Array:
-                    var arr = VirtualMachine.Heap[PTR];
+                    var arr = VirtualMachine.Heap.Get(PTR);
                     return arr.ToString();
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -342,7 +342,7 @@ namespace OnTheFly
                 case FObjectType.String when o.Type == FObjectType.String:
                     return o.ToString() == ToString();
                 case FObjectType.Array when o.Type == FObjectType.Array:
-                    return PTR == o.PTR || VirtualMachine.Heap[PTR] == VirtualMachine.Heap[o.PTR];
+                    return PTR == o.PTR || VirtualMachine.Heap.Get(PTR) == VirtualMachine.Heap.Get(o.PTR);
                 case FObjectType.Bool when o.Type == FObjectType.Bool:
                     return o.BOOL == BOOL;
                 default:
@@ -367,11 +367,11 @@ namespace OnTheFly
         {
             if (Type == FObjectType.Array)
             {
-                return (FArray) VirtualMachine.Heap[PTR];
+                return (FArray) VirtualMachine.Heap.Get(PTR);
             }
             else if (Type == FObjectType.String)
             {
-                var str = VirtualMachine.Heap[PTR].ToString().ToCharArray();
+                var str = VirtualMachine.Heap.Get(PTR).ToString().ToCharArray();
                 var l = new FObject[str.Length];
                 for (var i = 0; i < str.Length; i++)
                 {
@@ -402,7 +402,7 @@ namespace OnTheFly
                 case FObjectType.Array:
                     return FObject.NewI32(Array().pos);
                 case FObjectType.String:
-                    return FObject.NewI32(VirtualMachine.Heap[PTR].ToString().Length);
+                    return FObject.NewI32(VirtualMachine.Heap.Get(PTR).ToString().Length);
                 default:
                     throw new InvalidOperationException();
             }
@@ -413,6 +413,28 @@ namespace OnTheFly
             if (Type == FObjectType.Int)
                 return I32;
             throw new Exception($"{this} is not an integer.");
+        }
+
+        public void Dispose()
+        {
+            switch (Type)
+            {
+                case FObjectType.Nil:
+                    break;
+                case FObjectType.Int:
+                    break;
+                case FObjectType.Float:
+                    break;
+                case FObjectType.String:
+                    break;
+                case FObjectType.Array:
+                    VirtualMachine.Heap.Dispose(PTR);
+                    break;
+                case FObjectType.Bool:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 
