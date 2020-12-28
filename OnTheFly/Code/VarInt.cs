@@ -28,14 +28,9 @@ namespace OnTheFly.Code
             if (first <= 252)
                 return first;
             if (first == 253)
-            {
                 return BitConverter.ToInt16(data, offset);
-            }
-
             if (first == 254)
-            {
                 return BitConverter.ToInt32(data, offset);
-            }
 
             return BitConverter.ToInt64(data, offset);
         }
