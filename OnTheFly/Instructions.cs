@@ -5,6 +5,7 @@ using System.Text;
 
 namespace OnTheFly
 {
+    [Serializable]
     public class Instructions : List<byte>
     {
         public List<string> StringConstants { get; set; } = new List<string>();
@@ -289,6 +290,7 @@ namespace OnTheFly
         }
         public void StartBlock() => Add(OpCode.START_BLOCK);
         public void EndBlock() => Add(OpCode.END_BLOCK);
+
     }
 
     public enum OpCode
