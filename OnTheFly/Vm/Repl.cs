@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Antlr4.Runtime;
 using FlyLang;
 using OnTheFly.Vm.Runtime;
@@ -44,7 +45,7 @@ namespace OnTheFly.Vm
                     catch (Exception e)
                     {
                         listener = _prev;
-                        Console.WriteLine(e);
+                        Console.WriteLine(e.Message.Split('\n').First());
                     }
 
                     if (vm == null)
