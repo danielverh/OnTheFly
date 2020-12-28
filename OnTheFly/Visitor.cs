@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using FlyLang;
 using OnTheFly.Code;
 
 namespace OnTheFly
 {
-    public class Listener : FlyBaseListener
+    [Serializable]
+    public class Listener : FlyBaseListener, ICloneable
     {
         public Instructions Instructions = new Instructions();
         public CodeContexts Contexts = new CodeContexts();
@@ -502,5 +506,28 @@ namespace OnTheFly
         }
 
         public List<string> Imports = new List<string>();
+
+        public object Clone()
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+                formatter.Serialize(stream, new VisitorContainer {Instructions = Instructions, Contexts = Contexts, Imports = Imports});
+                stream.Seek(0, SeekOrigin.Begin);
+                var vc = (VisitorContainer)formatter.Deserialize(stream);
+                return new Listener{Contexts = vc.Contexts, Instructions = vc.Instructions, Imports = vc.Imports};
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+            }
+        }
+
+        [Serializable]
+        private class VisitorContainer
+        {
+            public Instructions Instructions;
+            public CodeContexts Contexts;
+            public List<string> Imports;
+        }
     }
 }

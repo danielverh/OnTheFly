@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace OnTheFly.Code
 {
+    [Serializable]
     public class CodeContext
     {
         public string Line { get; set; }
@@ -14,5 +15,6 @@ namespace OnTheFly.Code
         public int OpCodeEnd { get; set; }
         public string Position { get; set; }
     }
+    [Serializable]
     public class CodeContexts : List<CodeContext>{}
 }

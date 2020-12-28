@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Antlr4.Runtime;
 using FlyLang;
 using OnTheFly.Vm.Runtime;
@@ -15,7 +16,7 @@ namespace OnTheFly.Vm
             public TextReader In { get; }
             private VirtualMachine vm;
             private Listener listener = new Listener();
-
+            private Listener _prev = null;
             public Repl(TextReader _in, TextWriter _out)
             {
                 In = _in;
@@ -35,8 +36,17 @@ namespace OnTheFly.Vm
                     Console.Write(">>> ");
                     var input = ReadInput();
                     var lexer = new FlyLexer(new AntlrInputStream(input));
-                    var parser = new FlyParser(new CommonTokenStream(lexer));
-                    listener.EnterProgram(parser.program());
+                    try
+                    {
+                        _prev = (Listener) listener.Clone();
+                        var parser = new FlyParser(new CommonTokenStream(lexer)) { ErrorHandler = new BailErrorStrategy() };
+                        listener.EnterProgram(parser.program());
+                    }
+                    catch (Exception e)
+                    {
+                        listener = _prev;
+                        Console.WriteLine(e.Message.Split('\n').First());
+                    }
 
                     if (vm == null)
                         vm = new VirtualMachine(listener.Instructions, listener.Contexts, In, Out);
