@@ -345,5 +345,13 @@ namespace OnTheFly.Vm
                 return opStack.Pop();
             return FObject.Nil();
         }
+
+        public static class Garbage
+        {
+            public static void Mark()
+            {
+                
+            }
+        }
     }
 }
