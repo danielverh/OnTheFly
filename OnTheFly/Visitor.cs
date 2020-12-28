@@ -35,8 +35,6 @@ namespace OnTheFly
             ctx.OpCodeStart = Instructions.Count;
             if (context.expression() != null)
                 EnterExpression(context.expression());
-            else if (context.varAssignment() != null)
-                EnterVarAssignment(context.varAssignment());
             else if (context.ifElse() != null)
                 EnterIfElse(context.ifElse());
             else if (context.methodDefinition() != null)
@@ -173,6 +171,8 @@ namespace OnTheFly
             }
             else if (context.methodCall() != null)
                 EnterMethodCall(context.methodCall());
+            else if (context.varAssignment() != null)
+                EnterVarAssignment(context.varAssignment());
             else
                 throw new Exception("Not a valid expression");
         }

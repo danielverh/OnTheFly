@@ -63,7 +63,7 @@ namespace OnTheFly.Vm
             {
 #endif
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            
+            FObject res;
                 while (pc < Instructions.Count)
                 {
                     OpCode cCode = NextOperation();
@@ -87,7 +87,8 @@ namespace OnTheFly.Vm
                             opStack.Push(FObject.Nil());
                             break;
                         case OpCode.SET_VAR:
-                            blockStack.Peek()[constants[NextInt()]] = opStack.Pop();
+                            res = blockStack.Peek()[constants[NextInt()]] = opStack.Pop();
+                            opStack.Push(res);
                             break;
                         case OpCode.GET_VAR:
                             var lc = NextInt();
@@ -169,7 +170,7 @@ namespace OnTheFly.Vm
                             var args = new FObject[arity];
                             for (int i = 0; i < arity; i++)
                                 args[i] = opStack.Pop();
-                            var res = libraries[lib].Invoke(method, args.Reverse().ToArray());
+                            res = libraries[lib].Invoke(method, args.Reverse().ToArray());
                             opStack.Push(res);
                             break;
                         case OpCode.RETURN:

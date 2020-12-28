@@ -2,8 +2,7 @@ grammar Fly;
 
 program: statement+;
 statement: (
-		varAssignment
-		| importStatement
+		importStatement
 		| methodCall
 		| expression
 		| returnStmt
@@ -41,7 +40,8 @@ expression:
 	| unary = '!' right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
 	| left = expression op = (MUL | DIV) right = expression
-	| left = expression op = (ADD | SUB | MOD) right = expression;
+	| left = expression op = (ADD | SUB | MOD) right = expression
+	| varAssignment;
 methodCall:
 	ID '(' (expression (',' expression)* |) ')';
 array:
