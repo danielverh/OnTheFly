@@ -68,6 +68,6 @@ LGEQ: '>=';
 
 // MOD: '%';
 
-WS: (' ' | '\r' | '\n' | '\t') -> skip;
+WS: (' ' | '\r' | '\n' | '\t') -> channel(HIDDEN);
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 COMMENT: '/*' .*? '*/' -> skip;
