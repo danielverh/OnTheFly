@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -14,7 +15,13 @@ namespace OnTheFly.Vm
 {
     public partial class VirtualMachine
     {
-        public Instructions Instructions;
+        private Instructions _instr;
+        public Instructions Instructions { get => _instr; set
+            {
+                immutableInstr = ImmutableArray.CreateRange<byte>(_instr = value);
+            }
+        }
+        public ImmutableArray<byte> immutableInstr;
 
         public StringConstants constants;
 
@@ -66,7 +73,7 @@ namespace OnTheFly.Vm
             FObject res, indexObj;
             int index;
             string key;
-            while (pc < Instructions.Count)
+            while (pc < immutableInstr.Length)
                 {
                     OpCode cCode = NextOperation();
                     switch (cCode)
@@ -285,8 +292,9 @@ namespace OnTheFly.Vm
                             Import(constants[NextInt()]);
                             break;
                     }
+                if(pc % 10 == 0)
                     Garbage.ConditionalClean();
-                }
+            }
 #if !DEBUG
             }
             catch (Exception e)
@@ -319,7 +327,7 @@ namespace OnTheFly.Vm
 
         private OpCode NextOperation()
         {
-            return (OpCode) Instructions[pc++];
+            return (OpCode) immutableInstr[pc++];
         }
 
         /// <summary>
@@ -329,7 +337,7 @@ namespace OnTheFly.Vm
         private int NextInt()
         {
             return BitConverter.ToInt32(new[]
-                {Instructions[pc++], Instructions[pc++], Instructions[pc++], Instructions[pc++]});
+                {immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++]});
         }
         /// <summary>
         /// Take 4 bytes from the instructions, move the pc by 4, and convert those bytes into a float
@@ -338,7 +346,7 @@ namespace OnTheFly.Vm
         private float NextFloat()
         {
             return BitConverter.ToSingle(new[]
-                {Instructions[pc++], Instructions[pc++], Instructions[pc++], Instructions[pc++]});
+                {immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++]});
         }
         /// <summary>
         /// Execute <c>Run()</c> on current VirtualMachine instance

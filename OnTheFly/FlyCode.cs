@@ -21,6 +21,15 @@ namespace OnTheFly
             return (listener.Instructions, listener.Contexts);
         }
 
+        public static (Instructions Instructions, CodeContexts Contexts) ParseFile(string file)
+        {
+            var lexer = new FlyLexer(new AntlrFileStream(file));
+            var parser = new FlyParser(new CommonTokenStream(lexer));
+            var listener = new Listener();
+            listener.EnterProgram(parser.program());
+            return (listener.Instructions, listener.Contexts);
+        }
+
         public static FObject RunEval(Instructions instructions, CodeContexts contexts)
         {
             VirtualMachine vm = new VirtualMachine(instructions, contexts);

@@ -40,5 +40,10 @@ namespace OnTheFly.Vm.Runtime
         {
             objects.Remove(address);
         }
+
+        public void Clear()
+        {
+            objects.Clear();
+        }
     }
 }
