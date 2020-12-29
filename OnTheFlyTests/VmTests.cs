@@ -24,7 +24,20 @@ namespace OnTheFlyTests
                 ("25 + 35 * 2", "95"),
                 ("25 / 2", "12.5"),
             };
-
+            EvaluateList(cases);
+        }
+        public void Expressions()
+        {
+            (string, string)[] cases =
+{
+                ("my_int = 100;", "100"),
+                ("my_float = 1.53;", "1.53"),
+                (@"my_string = ""Hello World!"";", "Hello World!"),
+            };
+            EvaluateList(cases);
+        }
+        public void EvaluateList((string, string)[] cases)
+        {
             foreach (var (code, expected) in cases)
             {
                 VirtualMachine.Heap.Clear();
