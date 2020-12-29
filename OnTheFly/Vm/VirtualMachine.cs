@@ -346,7 +346,7 @@ namespace OnTheFly.Vm
         /// <summary>
         /// Execute <c>Run()</c> on current VirtualMachine instance
         /// </summary>
-        /// <returns>The operation stack topmost item, or Nil if there are no items on the stack</returns>
+        /// <returns>The operation stack topmost item, or &lt;nil&gt; if there are no items on the stack</returns>
         public FObject EvalRun()
         {
             Run();
