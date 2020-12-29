@@ -9,6 +9,7 @@ using System.Threading;
 using OnTheFly.Code;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Runtime;
+using OnTheFly.Vm.Runtime.Exceptions;
 
 namespace OnTheFly.Vm
 {
@@ -314,6 +315,8 @@ namespace OnTheFly.Vm
                 case "text":
                     libraries[package] = new TextLib();
                     break;
+                default:
+                    throw new RuntimeException($"Import failed: package 'package' not found.");
             }
         }
 
