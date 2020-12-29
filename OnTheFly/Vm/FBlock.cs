@@ -14,6 +14,7 @@ namespace OnTheFly.Vm
         private List<string> removeAfterClose = new List<string>();
         public bool Loop;
         public int EndPos = 0;
+        public int StackCount;
         public FObject this[string key]
         {
             get => _vars[key];

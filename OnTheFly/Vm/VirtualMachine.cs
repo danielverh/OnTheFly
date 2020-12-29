@@ -241,13 +241,19 @@ namespace OnTheFly.Vm
                         consoleOut.WriteLine();
                         break;
                     case OpCode.START_BLOCK:
-                        blockStack.Push(new FBlock(globals));
+                        blockStack.Push(new FBlock(globals) { StackCount = opStack.Count});
                         break;
                     case OpCode.START_LOOP:
-                        blockStack.Push(new FBlock(globals, true, NextInt()));
+                        blockStack.Push(new FBlock(globals, true, NextInt()) {StackCount = opStack.Count});
                         break;
                     case OpCode.END_BLOCK:
-                        blockStack.Pop().Close();
+                        var endBlock = blockStack.Pop();
+                        while (opStack.Count > endBlock.StackCount)
+                        {
+                            opStack.Pop();
+                        }
+
+                        endBlock.Close();
                         break;
                     case OpCode.ARRAY_ADD:
                         opStack.Push(FObject.NewArray(new FArray(24)));
