@@ -103,7 +103,7 @@ namespace OnTheFly
                         EnterExpression(expr);
                     }
 
-                    Instructions.Add(OpCode.CALL_BUILTIN);
+                    Instructions.Add(OpCode.CALL_LIBFUNC);
                     Instructions.AddInt(Instructions.AddString(lib));
                     Instructions.AddInt(Instructions.AddString(method));
                 }
@@ -336,35 +336,15 @@ namespace OnTheFly
                     Instructions.Add(OpCode.READ_LN);
                     break;
                 case "count":
-                    foreach (var expr in expressions)
-                    {
-                        EnterExpression(expr);
-                    }
-
-                    Instructions.Add(OpCode.COUNT);
-                    break;
                 case "remove":
-                    if (expressions.Length != 1)
-                    {
-                        throw new Exception($"Arity mismatch, expected 1 got {expressions.Length}");
-                    }
-
-                    EnterExpression(expressions[0]);
-                    Instructions.Add(OpCode.ARRAY_REMOVE);
-                    break;
                 case "insert":
-
-                    if (expressions.Length != 2)
-                    {
-                        throw new Exception($"Arity mismatch, expected 2 got {expressions.Length}");
-                    }
-
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
                     }
 
-                    Instructions.Add(OpCode.ARRAY_INSERT);
+                    Instructions.Add(OpCode.CALL_BUILTIN);
+                    Instructions.AddInt(Instructions.AddString(name));
                     break;
                 default:
                     foreach (var expr in expressions)
@@ -398,7 +378,6 @@ namespace OnTheFly
 
                 var start = Instructions.Count;
                 EnterExpression(context.expression());
-                Instructions.Add(OpCode.COUNT);
                 Instructions.Add(OpCode.GET_VAR);
                 Instructions.AddInt(indexer);
                 Instructions.Add(OpCode.SMALLER);
@@ -468,7 +447,6 @@ namespace OnTheFly
                 {
                     Instructions.Add(OpCode.GET_VAR);
                     Instructions.AddInt(Instructions.AddString(varName));
-                    Instructions.Add(OpCode.COUNT);
                     Instructions.Add(OpCode.SUB_I1);
                 }
 

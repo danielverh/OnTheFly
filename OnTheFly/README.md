@@ -42,7 +42,7 @@ for i < 100 {
 }
 // Push an item onto an array:
 fruits += "Kiwi";
-fruits.insert(0, "Strawberry"); // Inserts object after the given index
+fruits.insert(0, "Strawberry"); // Inserts object at the given index
 fruits.remove(0);
 ```
 If you want to take a part from an array (aka splicing) you can use the following:

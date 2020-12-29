@@ -48,8 +48,6 @@ namespace OnTheFly.Vm
         }
         public void Insert(int index, FObject item)
         {
-            index++;
-            // for inclusive numbers
             if (items.Length <= pos - 1)
                 Extend(_add);
             for (int i = index; i < pos; i++)

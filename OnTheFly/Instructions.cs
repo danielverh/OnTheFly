@@ -205,8 +205,8 @@ namespace OnTheFly
                     case OpCode.PRINT_LN:
                         sb.AppendLine("PRINT_LINE");
                         break;
-                    case OpCode.CALL_BUILTIN:
-                        sb.AppendLine($"CALL_BUILTIN {StringConstants[nextInt()]} . {StringConstants[this[++i]]}");
+                    case OpCode.CALL_LIBFUNC:
+                        sb.AppendLine($"CALL_LIBFUNC {StringConstants[nextInt()]} . {StringConstants[this[++i]]}");
                         break;
                     case OpCode.RETURN:
                         sb.AppendLine("RETURN");
@@ -219,9 +219,6 @@ namespace OnTheFly
                         break;
                     case OpCode.END_BLOCK:
                         sb.AppendLine("END_BLOCK");
-                        break;
-                    case OpCode.COUNT:
-                        sb.AppendLine("COUNT");
                         break;
                     case OpCode.NO_OP:
                         sb.AppendLine("NO_OP");
@@ -241,17 +238,11 @@ namespace OnTheFly
                     case OpCode.ARRAY_PUSH:
                         sb.AppendLine("ARRAY_PUSH");
                         break;
-                    case OpCode.ARRAY_REMOVE:
-                        sb.AppendLine("ARRAY_REMOVE");
-                        break;
                     case OpCode.ARRAY_SPLICE:
                         sb.AppendLine($"ARRAY_SPLICE");
                         break;
                     case OpCode.ARRAY_SET:
                         sb.AppendLine($"ARRAY_SET");
-                        break;
-                    case OpCode.ARRAY_INSERT:
-                        sb.AppendLine($"ARRAY_INSERT");
                         break;
                     case OpCode.ARRAY_PUSH_LOT:
                         sb.AppendLine($"ARRAY_PUSH_LOT {nextInt()}");
@@ -324,13 +315,11 @@ namespace OnTheFly
         ARRAY_ADD_BIG,
         ARRAY_PUSH,
         ARRAY_PUSH_LOT,
-        ARRAY_REMOVE,
         ARRAY_GET,
         ARRAY_SPLICE,
         ARRAY_SET,
-        ARRAY_INSERT,
 
-        CALL_BUILTIN,
+        CALL_LIBFUNC,
         CALL_FUNCTION,
         ADD_FUNCTION, // <arity n> | n * arg name with string constant | end position
         ADD_ARGUMENT,
@@ -348,12 +337,11 @@ namespace OnTheFly
         CLONE,
         POP,
 
-        COUNT,
-
         SET_VAR,
         GET_VAR,
         PRINT,
         PRINT_LN,
         READ_LN,
+        CALL_BUILTIN
     }
 }

@@ -438,13 +438,16 @@ namespace OnTheFly
         }
     }
 
+    [Flags]
     public enum FObjectType
     {
-        Nil,
-        Int,
-        Float,
-        String,
-        Array,
-        Bool,
+        Nil = 2,
+        Int = 4,
+        Float = 8,
+        String = 16,
+        Array = 32,
+        Bool = 64,
+
+        Any = 128,
     }
 }

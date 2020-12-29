@@ -21,15 +21,14 @@ namespace OnTheFly.Vm
         public Instructions Instructions
         {
             get => _instr;
-            set { immutableInstr = ImmutableArray.CreateRange<byte>(_instr = value); }
+            set => immutableInstr = ImmutableArray.CreateRange(_instr = value);
         }
 
         public ImmutableArray<byte> immutableInstr;
 
         public StringConstants constants;
-
-        // TODO: Add garbage collector
         public static MemoryHeap Heap = new MemoryHeap();
+
         public CodeContexts DebugContexts;
         private Stack<FObject> opStack;
         private Stack<FCall> callStack;
@@ -56,7 +55,7 @@ namespace OnTheFly.Vm
             callStack = new Stack<FCall>(128);
             blockStack = new Stack<FBlock>(256);
             blockStack.Push(new FBlock(globals));
-            callStack.Push(new FCall(null, 0));
+            callStack.Push(new FCall(null, 0, 0));
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             consoleIn = Console.In;
             consoleOut = Console.Out;
@@ -165,6 +164,18 @@ namespace OnTheFly.Vm
 
                         pc = endPos;
                         break;
+                    case OpCode.CALL_BUILTIN:
+                        name = constants[NextInt()];
+                        var builtin = Builtins.GetBuiltin(name);
+                        var inputs = new List<FObject>();
+                        for (int i = 0; i < builtin.Arity + 1; i++)
+                            inputs.Add(opStack.Pop());
+                        callStack.Push(new FCall(builtin, pc, opStack.Count));
+                        inputs.Reverse();
+                        opStack.Push(builtin.Invoke(inputs.ToArray()));
+                        callStack.Pop();
+
+                        break;
                     case OpCode.CALL_FUNCTION:
                         name = constants[NextInt()];
                         functions.Exists(name);
@@ -174,14 +185,19 @@ namespace OnTheFly.Vm
                             globals[function.Arguments[j]] = opStack.Pop();
                         }
 
-                        callStack.Push(new FCall(function, pc));
+                        callStack.Push(new FCall(function, pc, opStack.Count));
                         pc = function.Start;
                         break;
-                    case OpCode.CALL_BUILTIN:
+                    case OpCode.CALL_LIBFUNC:
                         var lib = constants[NextInt()];
                         var method = constants[NextInt()];
                         var arity = libraries[lib].ArityMap[method];
                         var args = new FObject[arity];
+                        if (arity > opStack.Count)
+                            throw new RuntimeException(
+                                $"Not enough items on the operator stack to fill arguments of function '{lib}.{method}()'. " +
+                                $"Argument count is {args}"
+                            );
                         for (int i = 0; i < arity; i++)
                             args[i] = opStack.Pop();
                         res = libraries[lib].Invoke(method, args.Reverse().ToArray());
@@ -189,6 +205,13 @@ namespace OnTheFly.Vm
                         break;
                     case OpCode.RETURN:
                         var call = callStack.Pop();
+                        var ret = opStack.Pop();
+                        while (opStack.Count > call.StackCount)
+                        {
+                            opStack.Pop();
+                        }
+
+                        opStack.Push(ret);
                         pc = call.CalledAt;
                         // blockStack.Pop().Close();
                         // END_BLOCK is now required after RETURN
@@ -256,23 +279,21 @@ namespace OnTheFly.Vm
                         val = opStack.Pop();
                         arr.items[indexObj.I32] = val;
                         break;
-                    case OpCode.ARRAY_REMOVE:
-                        indexObj = opStack.Pop(); // has to be int
-                        var ptrObj = opStack.Pop();
-                        arr = ptrObj.Array();
-                        arr.Remove(indexObj.I32);
-                        arr.pos--;
-                        opStack.Push(ptrObj);
-                        break;
-                    case OpCode.ARRAY_INSERT:
-                        indexObj = opStack.Pop();
-                        val = opStack.Pop();
-                        arr = opStack.Pop().Array();
-                        arr.Insert(indexObj.IsInt(), val);
-                        break;
-                    case OpCode.COUNT:
-                        opStack.Push(opStack.Pop().Count());
-                        break;
+                    // case OpCode.ARRAY_REMOVE:
+                    //     indexObj = opStack.Pop(); // has to be int
+                    //     var ptrObj = opStack.Pop();
+                    //     arr = ptrObj.Array();
+                    //     arr.Remove(indexObj.I32);
+                    //     arr.pos--;
+                    //     opStack.Push(ptrObj);
+                    //     break;
+                    // case OpCode.ARRAY_INSERT:
+                    //     indexObj = opStack.Pop();
+                    //     val = opStack.Pop();
+                    //     arr = opStack.Pop().Array();
+                    //     arr.Insert(indexObj.IsInt(), val);
+                    //     opStack.Push(val);
+                    //     break;
                     case OpCode.BREAK:
                         while (true)
                         {
