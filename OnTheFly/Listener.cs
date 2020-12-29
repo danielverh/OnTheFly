@@ -101,7 +101,7 @@ namespace OnTheFly
             else if (context.unary != null)
             {
                 EnterExpression(context.right);
-                Code.UnaryInversion();
+                Code.UnaryOperator(context.unary.Text);
             }
             else if (context.left != null && context.right != null && context.op != null)
             {

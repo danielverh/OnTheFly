@@ -139,6 +139,14 @@ namespace OnTheFly.Code
             Instructions.AddInt(Instructions.AddString(name));
         }
 
+        internal void UnaryOperator(string text)
+        {
+            if(text == "!")
+                UnaryInversion();
+            else
+                Instructions.Add(OpCode.UN_NEGATIVE);
+        }
+
         public void MethodDefinition(string name, string[] args, Action bodyBlock)
         {
             Instructions.Add(OpCode.ADD_FUNCTION);

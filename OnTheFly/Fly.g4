@@ -37,7 +37,7 @@ expression:
 	| ID '[' index=expression ']'
 	| ID
 	| '(' parenExp = expression ')'
-	| unary = '!' right = expression
+	| unary = ('!'|'-') right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
 	| left = expression op = (MUL | DIV) right = expression
 	| left = expression op = (ADD | SUB | MOD) right = expression

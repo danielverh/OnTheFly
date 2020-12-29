@@ -120,7 +120,7 @@ namespace OnTheFly.Vm
                         opStack.Push(opStack.Pop() / opStack.Pop());
                         break;
                     case OpCode.MOD:
-                        opStack.Push(FObject.NewI32(opStack.Pop().Int() % opStack.Pop().Int()));
+                        opStack.Push(opStack.Pop() % opStack.Pop());
                         break;
                     case OpCode.ADD_I1:
                         opStack.Push(opStack.Pop() + FObject.NewI32(1));
@@ -130,6 +130,9 @@ namespace OnTheFly.Vm
                         break;
                     case OpCode.UNINV:
                         opStack.Push(!opStack.Pop());
+                        break;
+                    case OpCode.UN_NEGATIVE:
+                        opStack.Push(-opStack.Pop());
                         break;
                     case OpCode.EQUALS:
                         opStack.Push(FObject.NewBool(opStack.Pop().Equals(opStack.Pop())));

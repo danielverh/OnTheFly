@@ -144,7 +144,7 @@ public partial class FlyParser : Parser {
 				State = 31;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -223,6 +223,7 @@ public partial class FlyParser : Parser {
 			case BOOL:
 			case STRING:
 			case ID:
+			case SUB:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 38;
@@ -673,7 +674,7 @@ public partial class FlyParser : Parser {
 			State = 88;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0)) {
 				{
 				{
 				State = 85; _localctx._statement = statement();
@@ -724,6 +725,7 @@ public partial class FlyParser : Parser {
 			case BOOL:
 			case STRING:
 			case ID:
+			case SUB:
 				{
 				}
 				break;
@@ -734,7 +736,7 @@ public partial class FlyParser : Parser {
 				State = 107;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0)) {
 					{
 					{
 					State = 104; _localctx._statement = statement();
@@ -825,7 +827,7 @@ public partial class FlyParser : Parser {
 			State = 124;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0)) {
 				{
 				{
 				State = 121; statement();
@@ -888,7 +890,7 @@ public partial class FlyParser : Parser {
 			State = 133;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0)) {
 				{
 				{
 				State = 130; statement();
@@ -993,7 +995,7 @@ public partial class FlyParser : Parser {
 			State = 157;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__6) | (1L << T__9) | (1L << T__14) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << NIL) | (1L << FLOAT) | (1L << INT) | (1L << BOOL) | (1L << STRING) | (1L << ID) | (1L << SUB))) != 0)) {
 				{
 				{
 				State = 154; statement();
@@ -1045,6 +1047,7 @@ public partial class FlyParser : Parser {
 		public ExpressionContext expression(int i) {
 			return GetRuleContext<ExpressionContext>(i);
 		}
+		public ITerminalNode SUB() { return GetToken(FlyParser.SUB, 0); }
 		public VarAssignmentContext varAssignment() {
 			return GetRuleContext<VarAssignmentContext>(0);
 		}
@@ -1057,7 +1060,6 @@ public partial class FlyParser : Parser {
 		public ITerminalNode MUL() { return GetToken(FlyParser.MUL, 0); }
 		public ITerminalNode DIV() { return GetToken(FlyParser.DIV, 0); }
 		public ITerminalNode ADD() { return GetToken(FlyParser.ADD, 0); }
-		public ITerminalNode SUB() { return GetToken(FlyParser.SUB, 0); }
 		public ITerminalNode MOD() { return GetToken(FlyParser.MOD, 0); }
 		public ExpressionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -1156,7 +1158,16 @@ public partial class FlyParser : Parser {
 				break;
 			case 11:
 				{
-				State = 180; _localctx.unary = Match(T__19);
+				State = 180;
+				_localctx.unary = TokenStream.LT(1);
+				_la = TokenStream.LA(1);
+				if ( !(_la==T__19 || _la==SUB) ) {
+					_localctx.unary = ErrorHandler.RecoverInline(this);
+				}
+				else {
+					ErrorHandler.ReportMatch(this);
+				    Consume();
+				}
 				State = 181; _localctx.right = expression(5);
 				}
 				break;
@@ -1320,6 +1331,7 @@ public partial class FlyParser : Parser {
 			case BOOL:
 			case STRING:
 			case ID:
+			case SUB:
 				{
 				State = 204; expression(0);
 				State = 209;
@@ -1423,6 +1435,7 @@ public partial class FlyParser : Parser {
 				case BOOL:
 				case STRING:
 				case ID:
+				case SUB:
 					{
 					State = 219; _localctx._expression = expression(0);
 					_localctx._items.Add(_localctx._expression);
@@ -1491,6 +1504,7 @@ public partial class FlyParser : Parser {
 				case BOOL:
 				case STRING:
 				case ID:
+				case SUB:
 					{
 					State = 245; _localctx.spliceEnd = expression(0);
 					}
@@ -1586,23 +1600,24 @@ public partial class FlyParser : Parser {
 		'\xF', '\x3', '\xF', '\x3', '\xF', '\x5', '\xF', '\xFD', '\n', '\xF', 
 		'\x3', '\xF', '\x2', '\x3', '\x18', '\x10', '\x2', '\x4', '\x6', '\b', 
 		'\n', '\f', '\xE', '\x10', '\x12', '\x14', '\x16', '\x18', '\x1A', '\x1C', 
-		'\x2', '\x6', '\x3', '\x2', '\x1E', '!', '\x3', '\x2', '#', '(', '\x3', 
-		'\x2', ' ', '!', '\x4', '\x2', '\x1E', '\x1F', '\"', '\"', '\x2', '\x11C', 
-		'\x2', '\x1F', '\x3', '\x2', '\x2', '\x2', '\x4', '/', '\x3', '\x2', '\x2', 
-		'\x2', '\x6', '\x31', '\x3', '\x2', '\x2', '\x2', '\b', '\x34', '\x3', 
-		'\x2', '\x2', '\x2', '\n', '\x36', '\x3', '\x2', '\x2', '\x2', '\f', '\x45', 
-		'\x3', '\x2', '\x2', '\x2', '\xE', 'N', '\x3', '\x2', '\x2', '\x2', '\x10', 
-		'T', '\x3', '\x2', '\x2', '\x2', '\x12', 's', '\x3', '\x2', '\x2', '\x2', 
-		'\x14', '\x83', '\x3', '\x2', '\x2', '\x2', '\x16', '\x8C', '\x3', '\x2', 
-		'\x2', '\x2', '\x18', '\xB9', '\x3', '\x2', '\x2', '\x2', '\x1A', '\xCC', 
-		'\x3', '\x2', '\x2', '\x2', '\x1C', '\xFC', '\x3', '\x2', '\x2', '\x2', 
-		'\x1E', ' ', '\x5', '\x4', '\x3', '\x2', '\x1F', '\x1E', '\x3', '\x2', 
-		'\x2', '\x2', ' ', '!', '\x3', '\x2', '\x2', '\x2', '!', '\x1F', '\x3', 
-		'\x2', '\x2', '\x2', '!', '\"', '\x3', '\x2', '\x2', '\x2', '\"', '\x3', 
-		'\x3', '\x2', '\x2', '\x2', '#', ')', '\x5', '\f', '\a', '\x2', '$', ')', 
-		'\x5', '\x1A', '\xE', '\x2', '%', ')', '\x5', '\x18', '\r', '\x2', '&', 
-		')', '\x5', '\x6', '\x4', '\x2', '\'', ')', '\x5', '\b', '\x5', '\x2', 
-		'(', '#', '\x3', '\x2', '\x2', '\x2', '(', '$', '\x3', '\x2', '\x2', '\x2', 
+		'\x2', '\a', '\x3', '\x2', '\x1E', '!', '\x4', '\x2', '\x16', '\x16', 
+		'\x1F', '\x1F', '\x3', '\x2', '#', '(', '\x3', '\x2', ' ', '!', '\x4', 
+		'\x2', '\x1E', '\x1F', '\"', '\"', '\x2', '\x11C', '\x2', '\x1F', '\x3', 
+		'\x2', '\x2', '\x2', '\x4', '/', '\x3', '\x2', '\x2', '\x2', '\x6', '\x31', 
+		'\x3', '\x2', '\x2', '\x2', '\b', '\x34', '\x3', '\x2', '\x2', '\x2', 
+		'\n', '\x36', '\x3', '\x2', '\x2', '\x2', '\f', '\x45', '\x3', '\x2', 
+		'\x2', '\x2', '\xE', 'N', '\x3', '\x2', '\x2', '\x2', '\x10', 'T', '\x3', 
+		'\x2', '\x2', '\x2', '\x12', 's', '\x3', '\x2', '\x2', '\x2', '\x14', 
+		'\x83', '\x3', '\x2', '\x2', '\x2', '\x16', '\x8C', '\x3', '\x2', '\x2', 
+		'\x2', '\x18', '\xB9', '\x3', '\x2', '\x2', '\x2', '\x1A', '\xCC', '\x3', 
+		'\x2', '\x2', '\x2', '\x1C', '\xFC', '\x3', '\x2', '\x2', '\x2', '\x1E', 
+		' ', '\x5', '\x4', '\x3', '\x2', '\x1F', '\x1E', '\x3', '\x2', '\x2', 
+		'\x2', ' ', '!', '\x3', '\x2', '\x2', '\x2', '!', '\x1F', '\x3', '\x2', 
+		'\x2', '\x2', '!', '\"', '\x3', '\x2', '\x2', '\x2', '\"', '\x3', '\x3', 
+		'\x2', '\x2', '\x2', '#', ')', '\x5', '\f', '\a', '\x2', '$', ')', '\x5', 
+		'\x1A', '\xE', '\x2', '%', ')', '\x5', '\x18', '\r', '\x2', '&', ')', 
+		'\x5', '\x6', '\x4', '\x2', '\'', ')', '\x5', '\b', '\x5', '\x2', '(', 
+		'#', '\x3', '\x2', '\x2', '\x2', '(', '$', '\x3', '\x2', '\x2', '\x2', 
 		'(', '%', '\x3', '\x2', '\x2', '\x2', '(', '&', '\x3', '\x2', '\x2', '\x2', 
 		'(', '\'', '\x3', '\x2', '\x2', '\x2', ')', '*', '\x3', '\x2', '\x2', 
 		'\x2', '*', '+', '\a', '\x3', '\x2', '\x2', '+', '\x30', '\x3', '\x2', 
@@ -1693,7 +1708,7 @@ public partial class FlyParser : Parser {
 		'\x2', '\x2', '\x2', '\xB1', '\xBA', '\a', '\x1D', '\x2', '\x2', '\xB2', 
 		'\xB3', '\a', '\x14', '\x2', '\x2', '\xB3', '\xB4', '\x5', '\x18', '\r', 
 		'\x2', '\xB4', '\xB5', '\a', '\x15', '\x2', '\x2', '\xB5', '\xBA', '\x3', 
-		'\x2', '\x2', '\x2', '\xB6', '\xB7', '\a', '\x16', '\x2', '\x2', '\xB7', 
+		'\x2', '\x2', '\x2', '\xB6', '\xB7', '\t', '\x3', '\x2', '\x2', '\xB7', 
 		'\xBA', '\x5', '\x18', '\r', '\a', '\xB8', '\xBA', '\x5', '\n', '\x6', 
 		'\x2', '\xB9', '\xA4', '\x3', '\x2', '\x2', '\x2', '\xB9', '\xA6', '\x3', 
 		'\x2', '\x2', '\x2', '\xB9', '\xA7', '\x3', '\x2', '\x2', '\x2', '\xB9', 
@@ -1705,11 +1720,11 @@ public partial class FlyParser : Parser {
 		'\x2', '\x2', '\x2', '\xBA', '\xC9', '\x3', '\x2', '\x2', '\x2', '\xBB', 
 		'\xBC', '\f', '\v', '\x2', '\x2', '\xBC', '\xBD', '\a', '\v', '\x2', '\x2', 
 		'\xBD', '\xC8', '\x5', '\x18', '\r', '\f', '\xBE', '\xBF', '\f', '\x6', 
-		'\x2', '\x2', '\xBF', '\xC0', '\t', '\x3', '\x2', '\x2', '\xC0', '\xC8', 
+		'\x2', '\x2', '\xBF', '\xC0', '\t', '\x4', '\x2', '\x2', '\xC0', '\xC8', 
 		'\x5', '\x18', '\r', '\a', '\xC1', '\xC2', '\f', '\x5', '\x2', '\x2', 
-		'\xC2', '\xC3', '\t', '\x4', '\x2', '\x2', '\xC3', '\xC8', '\x5', '\x18', 
+		'\xC2', '\xC3', '\t', '\x5', '\x2', '\x2', '\xC3', '\xC8', '\x5', '\x18', 
 		'\r', '\x6', '\xC4', '\xC5', '\f', '\x4', '\x2', '\x2', '\xC5', '\xC6', 
-		'\t', '\x5', '\x2', '\x2', '\xC6', '\xC8', '\x5', '\x18', '\r', '\x5', 
+		'\t', '\x6', '\x2', '\x2', '\xC6', '\xC8', '\x5', '\x18', '\r', '\x5', 
 		'\xC7', '\xBB', '\x3', '\x2', '\x2', '\x2', '\xC7', '\xBE', '\x3', '\x2', 
 		'\x2', '\x2', '\xC7', '\xC1', '\x3', '\x2', '\x2', '\x2', '\xC7', '\xC4', 
 		'\x3', '\x2', '\x2', '\x2', '\xC8', '\xCB', '\x3', '\x2', '\x2', '\x2', 

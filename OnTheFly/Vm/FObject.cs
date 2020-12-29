@@ -74,6 +74,23 @@ namespace OnTheFly
             }
         }
         /// <summary>
+        /// Make the FObject negative
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        public static FObject operator -(FObject r)
+        {
+            switch (r.Type)
+            {
+                case FObjectType.Float:
+                    return FObject.NewF32(-r.F32);
+                case FObjectType.Int:
+                    return FObject.NewI32(-r.I32);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        /// <summary>
         /// Add two FObjects, using automatic type casting.
         /// </summary>
         /// <param name="l">Left object in the expression</param>
@@ -140,6 +157,10 @@ namespace OnTheFly
                     return new FObject {Type = FObjectType.Int, I32 = l.I32 * r.I32};
                 case FObjectType.Float when r.Type == FObjectType.Float:
                     return new FObject {Type = FObjectType.Float, F32 = l.F32 * r.F32};
+                case FObjectType.Float when r.Type == FObjectType.Int:
+                    return new FObject { Type = FObjectType.Float, F32 = l.F32 * r.Cast(FObjectType.Float).F32 };
+                case FObjectType.Int when r.Type == FObjectType.Float:
+                    return new FObject {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 * r.F32};
                 case FObjectType.String when r.Type == FObjectType.Int:
                     return NewString(VirtualMachine.Heap.Get(l.PTR).ToString().Repeat(r.I32));
                 default:
@@ -171,6 +192,13 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
+        public static FObject operator %(FObject l, FObject r)
+        {
+            if(l.Type != FObjectType.Int && r.Type != FObjectType.Int)
+                throw new InvalidOperationException();
+            return new FObject { Type = FObjectType.Int, I32 = l.I32 % r.I32 };
+        }
+
         /// <summary>
         /// True if l is greater than r
         /// </summary>

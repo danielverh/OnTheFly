@@ -334,6 +334,7 @@ namespace OnTheFly
         JMP_FALSE,
 
         UNINV,
+        UN_NEGATIVE,
         CLONE,
         POP,
 
