@@ -10,6 +10,7 @@ using System.Threading;
 using OnTheFly.Code;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Runtime;
+using OnTheFly.Vm.Runtime.Exceptions;
 
 namespace OnTheFly.Vm
 {
@@ -322,6 +323,8 @@ namespace OnTheFly.Vm
                 case "text":
                     libraries[package] = new TextLib();
                     break;
+                default:
+                    throw new RuntimeException($"Import failed: package 'package' not found.");
             }
         }
 
@@ -351,7 +354,7 @@ namespace OnTheFly.Vm
         /// <summary>
         /// Execute <c>Run()</c> on current VirtualMachine instance
         /// </summary>
-        /// <returns>The operation stack topmost item, or Nil if there are no items on the stack</returns>
+        /// <returns>The operation stack topmost item, or &lt;nil&gt; if there are no items on the stack</returns>
         public FObject EvalRun()
         {
             Run();
