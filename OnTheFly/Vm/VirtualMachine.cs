@@ -38,7 +38,8 @@ namespace OnTheFly.Vm
         private Functions functions = new Functions(255);
         private TextReader consoleIn;
         private TextWriter consoleOut;
-
+        // For debugging:
+        private OpCode previousOpCode;
         public VirtualMachine(Instructions _instructions, CodeContexts _contexts, TextReader _in, TextWriter _out) :
             this(_instructions, _contexts)
         {
@@ -87,7 +88,7 @@ namespace OnTheFly.Vm
                         opStack.Push(FObject.NewF32(f));
                         break;
                     case OpCode.LOAD_BOOL:
-                        opStack.Push(FObject.NewBool(NextInt() == 1));
+                        opStack.Push(FObject.NewBool(NextOperation() != OpCode.NO_OP));
                         break;
                     case OpCode.LOAD_STR:
                         opStack.Push(FObject.NewString(Heap.Add(constants[NextInt()])));
@@ -220,16 +221,14 @@ namespace OnTheFly.Vm
                         // END_BLOCK is now required after RETURN
                         break;
                     case OpCode.JMP_EQ:
+                        int offset = NextInt();
                         if (opStack.Pop().True())
-                            pc = NextInt();
-                        else
-                            pc++;
+                            pc = offset;
                         break;
                     case OpCode.JMP_FALSE:
+                        offset = NextInt();
                         if (!opStack.Pop().True())
-                            pc = NextInt();
-                        else
-                            pc++;
+                            pc = offset;
                         break;
                     case OpCode.CLONE:
                         opStack.Push(opStack.Peek());
@@ -327,6 +326,7 @@ namespace OnTheFly.Vm
 
                 if (pc % 10 == 0)
                     Garbage.ConditionalClean();
+                previousOpCode = cCode;
             }
 #if !DEBUG
             }
