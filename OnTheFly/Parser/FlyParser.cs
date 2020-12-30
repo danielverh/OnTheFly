@@ -1027,8 +1027,8 @@ public partial class FlyParser : Parser {
 		public IToken unary;
 		public ExpressionContext right;
 		public ExpressionContext callOn;
-		public IToken comp;
 		public IToken op;
+		public IToken comp;
 		public MethodCallContext methodCall() {
 			return GetRuleContext<MethodCallContext>(0);
 		}
@@ -1051,16 +1051,16 @@ public partial class FlyParser : Parser {
 		public VarAssignmentContext varAssignment() {
 			return GetRuleContext<VarAssignmentContext>(0);
 		}
+		public ITerminalNode MUL() { return GetToken(FlyParser.MUL, 0); }
+		public ITerminalNode DIV() { return GetToken(FlyParser.DIV, 0); }
+		public ITerminalNode ADD() { return GetToken(FlyParser.ADD, 0); }
+		public ITerminalNode MOD() { return GetToken(FlyParser.MOD, 0); }
 		public ITerminalNode EQ() { return GetToken(FlyParser.EQ, 0); }
 		public ITerminalNode NEQ() { return GetToken(FlyParser.NEQ, 0); }
 		public ITerminalNode SM() { return GetToken(FlyParser.SM, 0); }
 		public ITerminalNode LG() { return GetToken(FlyParser.LG, 0); }
 		public ITerminalNode SMEQ() { return GetToken(FlyParser.SMEQ, 0); }
 		public ITerminalNode LGEQ() { return GetToken(FlyParser.LGEQ, 0); }
-		public ITerminalNode MUL() { return GetToken(FlyParser.MUL, 0); }
-		public ITerminalNode DIV() { return GetToken(FlyParser.DIV, 0); }
-		public ITerminalNode ADD() { return GetToken(FlyParser.ADD, 0); }
-		public ITerminalNode MOD() { return GetToken(FlyParser.MOD, 0); }
 		public ExpressionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -1209,10 +1209,10 @@ public partial class FlyParser : Parser {
 						State = 188;
 						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
 						State = 189;
-						_localctx.comp = TokenStream.LT(1);
+						_localctx.op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
-						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << EQ) | (1L << NEQ) | (1L << SM) | (1L << LG) | (1L << SMEQ) | (1L << LGEQ))) != 0)) ) {
-							_localctx.comp = ErrorHandler.RecoverInline(this);
+						if ( !(_la==MUL || _la==DIV) ) {
+							_localctx.op = ErrorHandler.RecoverInline(this);
 						}
 						else {
 							ErrorHandler.ReportMatch(this);
@@ -1231,7 +1231,7 @@ public partial class FlyParser : Parser {
 						State = 192;
 						_localctx.op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
-						if ( !(_la==MUL || _la==DIV) ) {
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ADD) | (1L << SUB) | (1L << MOD))) != 0)) ) {
 							_localctx.op = ErrorHandler.RecoverInline(this);
 						}
 						else {
@@ -1249,10 +1249,10 @@ public partial class FlyParser : Parser {
 						State = 194;
 						if (!(Precpred(Context, 2))) throw new FailedPredicateException(this, "Precpred(Context, 2)");
 						State = 195;
-						_localctx.op = TokenStream.LT(1);
+						_localctx.comp = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
-						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ADD) | (1L << SUB) | (1L << MOD))) != 0)) ) {
-							_localctx.op = ErrorHandler.RecoverInline(this);
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << EQ) | (1L << NEQ) | (1L << SM) | (1L << LG) | (1L << SMEQ) | (1L << LGEQ))) != 0)) ) {
+							_localctx.comp = ErrorHandler.RecoverInline(this);
 						}
 						else {
 							ErrorHandler.ReportMatch(this);
@@ -1601,8 +1601,8 @@ public partial class FlyParser : Parser {
 		'\x3', '\xF', '\x2', '\x3', '\x18', '\x10', '\x2', '\x4', '\x6', '\b', 
 		'\n', '\f', '\xE', '\x10', '\x12', '\x14', '\x16', '\x18', '\x1A', '\x1C', 
 		'\x2', '\a', '\x3', '\x2', '\x1E', '!', '\x4', '\x2', '\x16', '\x16', 
-		'\x1F', '\x1F', '\x3', '\x2', '#', '(', '\x3', '\x2', ' ', '!', '\x4', 
-		'\x2', '\x1E', '\x1F', '\"', '\"', '\x2', '\x11C', '\x2', '\x1F', '\x3', 
+		'\x1F', '\x1F', '\x3', '\x2', ' ', '!', '\x4', '\x2', '\x1E', '\x1F', 
+		'\"', '\"', '\x3', '\x2', '#', '(', '\x2', '\x11C', '\x2', '\x1F', '\x3', 
 		'\x2', '\x2', '\x2', '\x4', '/', '\x3', '\x2', '\x2', '\x2', '\x6', '\x31', 
 		'\x3', '\x2', '\x2', '\x2', '\b', '\x34', '\x3', '\x2', '\x2', '\x2', 
 		'\n', '\x36', '\x3', '\x2', '\x2', '\x2', '\f', '\x45', '\x3', '\x2', 
