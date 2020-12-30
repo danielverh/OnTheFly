@@ -186,7 +186,8 @@ namespace OnTheFly.Vm
                         function = functions[name];
                         for (int j = 0; j < function.Arity; j++)
                         {
-                            globals[function.Arguments[j]] = opStack.Pop();
+                            // TODO: Should be in top blockstack
+                            blockStack.Peek()[function.Arguments[j]] = opStack.Pop();
                         }
 
                         callStack.Push(new FCall(function, pc, opStack.Count));
