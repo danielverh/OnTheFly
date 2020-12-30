@@ -187,5 +187,10 @@ namespace OnTheFly.Code
             Instructions.Add(OpCode.IMPORT);
             Instructions.AddInt(Instructions.AddString(lib));
         }
+
+        public void ArraySet()
+        {
+            Instructions.Add(OpCode.ARRAY_SET);
+        }
     }
 }

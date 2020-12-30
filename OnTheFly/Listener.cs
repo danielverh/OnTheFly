@@ -65,11 +65,15 @@ namespace OnTheFly
                 Code.Bool(context.BOOL().GetText());
             else if (context.ID() != null)
             {
-                Code.VarCall(context.ID().GetText());
                 if (context.index != null)
                 {
                     EnterExpression(context.index);
+                    Code.VarCall(context.ID().GetText());
                     Code.ArrayGet();
+                }
+                else
+                {
+                    Code.VarCall(context.ID().GetText());
                 }
             }
             else if (context.callOn != null)
@@ -128,6 +132,7 @@ namespace OnTheFly
             var name = context.ID().GetText();
             EnterExpression(context.value);
 
+            // Compound assignment
             if (context.op != null)
             {
                 Code.GetVar(name);
@@ -141,11 +146,12 @@ namespace OnTheFly
                 Code.BinaryOperator(context.op.Text);
             }
 
+            // Array assignment
             if (context.index != null)
             {
                 EnterExpression(context.index);
                 Code.GetVar(name);
-                Code.ArrayGet();
+                Code.ArraySet();
             }
             else
             {
