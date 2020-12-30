@@ -54,7 +54,7 @@ namespace OnTheFly.Vm
             opStack = new Stack<FObject>(1024);
             callStack = new Stack<FCall>(128);
             blockStack = new Stack<FBlock>(256);
-            blockStack.Push(new FBlock(globals));
+            blockStack.Push(new FBlock(globals, 0, null));
             callStack.Push(new FCall(null, 0, 0));
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             consoleIn = Console.In;
@@ -244,10 +244,10 @@ namespace OnTheFly.Vm
                         consoleOut.WriteLine();
                         break;
                     case OpCode.START_BLOCK:
-                        blockStack.Push(new FBlock(globals) { StackCount = opStack.Count});
+                        blockStack.Push(new FBlock(globals, opStack.Count, blockStack.Peek()));
                         break;
                     case OpCode.START_LOOP:
-                        blockStack.Push(new FBlock(globals, true, NextInt()) {StackCount = opStack.Count});
+                        blockStack.Push(new FBlock(globals, opStack.Count, blockStack.Peek(), true, NextInt()));
                         break;
                     case OpCode.END_BLOCK:
                         var endBlock = blockStack.Pop();
