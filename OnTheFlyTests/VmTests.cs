@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
@@ -22,17 +23,30 @@ namespace OnTheFlyTests
             {
                 ("25 + 35 - 20", "40"),
                 ("25 + 35 * 2", "95"),
-                ("25 / 2", "12.5"),
+                ("25 / 2.0", "12.5"),
             };
             EvaluateList(cases);
         }
         public void Expressions()
         {
             (string, string)[] cases =
-{
-                ("my_int = 100;", "100"),
-                ("my_float = 1.53;", "1.53"),
-                (@"my_string = ""Hello World!"";", "Hello World!"),
+            {
+                ("my_int = 100; print(my_int);", "100"),
+                ("my_float = 1.53; print(my_float); ", "1.53"),
+                (@"my_string = ""Hello World!""; print(my_string);", "Hello World!"),
+            };
+            EvaluateList(cases);
+        }
+        [Test]
+        public void Statements()
+        {
+            (string, string)[] cases =
+            {
+                ("i = 0; for i < 10 { i += 1; } i;", "10"),
+                ("expr = true; if expr { print(expr); }", "true"),
+                ("a = -1; if true { a = 0; } elif false { a = 1; } else { a = 2; } a;", "0"),
+                ("a = -1; if false { a = 0; } elif true { a = 1; } else { a = 2; } a;", "1"),
+                ("a = -1; if false { a = 0; } elif false { a = 1; } else { a = 2; } a;", "2"),
             };
             EvaluateList(cases);
         }
@@ -42,8 +56,9 @@ namespace OnTheFlyTests
             {
                 VirtualMachine.Heap.Clear();
                 var parsed = FlyCode.Parse($"{code};");
+                
                 var result = FlyCode.RunEval(parsed.Instructions, parsed.Contexts);
-                Assert.AreEqual(result.ToString(), expected);
+                Assert.AreEqual(expected, result.ToString());
             }
         }
     }
