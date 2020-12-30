@@ -29,9 +29,14 @@ namespace OnTheFly
 
         public override void EnterStatement(FlyParser.StatementContext context)
         {
-            if (context.expression() != null)
+            if (context.varAssignment() != null)
+            {
+                EnterVarAssignment(context.varAssignment());
+                Code.Instructions.Add(OpCode.POP);
+            }
             else if (context.varMultiAssignment() != null)
                 EnterVarMultiAssignment(context.varMultiAssignment());
+            else if (context.expression() != null)
                 EnterExpression(context.expression());
             else if (context.ifElse() != null)
                 EnterIfElse(context.ifElse());
@@ -229,7 +234,7 @@ namespace OnTheFly
                         EnterStatement(statement);
                     }
 
-                    if (Code.Instructions.Last() != (int) OpCode.RETURN)
+                    if (Code.Instructions.Last() != (int)OpCode.RETURN)
                     {
                         Code.Nil();
                         Code.Instructions.Add(OpCode.RETURN);
@@ -272,6 +277,7 @@ namespace OnTheFly
                     {
                         EnterExpression(expr);
                     }
+
                     Code.FunctionCall(name);
                     break;
             }
@@ -462,10 +468,10 @@ namespace OnTheFly
             {
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
                 formatter.Serialize(stream,
-                    new VisitorContainer {Generator = Code, Imports = Imports});
+                    new VisitorContainer { Generator = Code, Imports = Imports });
                 stream.Seek(0, SeekOrigin.Begin);
-                var vc = (VisitorContainer) formatter.Deserialize(stream);
-                return new Listener {Code = vc.Generator, Imports = vc.Imports};
+                var vc = (VisitorContainer)formatter.Deserialize(stream);
+                return new Listener { Code = vc.Generator, Imports = vc.Imports };
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
             }
         }

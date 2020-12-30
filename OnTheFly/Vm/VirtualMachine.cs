@@ -96,6 +96,9 @@ namespace OnTheFly.Vm
                     case OpCode.LOAD_NIL:
                         opStack.Push(FObject.Nil());
                         break;
+                    case OpCode.POP:
+                        opStack.Pop();
+                        break;
                     case OpCode.SET_VAR:
                         index = NextInt();
                         key = constants[index];
