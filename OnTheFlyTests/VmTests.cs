@@ -59,7 +59,7 @@ namespace OnTheFlyTests
             (string, string)[] cases =
             {
                 ("i = 0; for i < 10 { i += 1; } i;", "10"),
-                ("expr = true; if expr { print(expr); }", "true"),
+                ("expr = true; if expr { a = expr; }", "true"),
                 ("a = -1; if true { a = 0; } elif false { a = 1; } else { a = 2; } a;", "0"),
                 ("a = -1; if false { a = 0; } elif true { a = 1; } else { a = 2; } a;", "1"),
                 ("a = -1; if false { a = 0; } elif false { a = 1; } else { a = 2; } a;", "2"),
@@ -71,7 +71,7 @@ namespace OnTheFlyTests
             foreach (var (code, expected) in cases)
             {
                 VirtualMachine.Heap.Clear();
-                var parsed = FlyCode.Parse($"{code};");
+                var parsed = FlyCode.Parse($"{code}");
                 
                 var result = FlyCode.RunEval(parsed.Instructions, parsed.Contexts);
                 Assert.AreEqual(expected, result.ToString());
