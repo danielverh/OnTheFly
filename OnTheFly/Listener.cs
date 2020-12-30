@@ -221,7 +221,11 @@ namespace OnTheFly
                         EnterStatement(statement);
                     }
 
-                    Code.Instructions.Add(OpCode.RETURN);
+                    if (Code.Instructions.Last() != (int) OpCode.RETURN)
+                    {
+                        Code.Nil();
+                        Code.Instructions.Add(OpCode.RETURN);
+                    }
                 }
             );
         }
