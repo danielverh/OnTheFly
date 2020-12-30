@@ -63,6 +63,12 @@ public interface IFlyVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitVarAssignment([NotNull] FlyParser.VarAssignmentContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="FlyParser.varMultiAssignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitVarMultiAssignment([NotNull] FlyParser.VarMultiAssignmentContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="FlyParser.importStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -98,6 +104,12 @@ public interface IFlyVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitArrOrVar([NotNull] FlyParser.ArrOrVarContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="FlyParser.expression"/>.
 	/// </summary>

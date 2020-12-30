@@ -2,7 +2,9 @@ grammar Fly;
 
 program: statement+;
 statement: (
-		importStatement
+		varAssignment
+		| varMultiAssignment
+		| importStatement
 		| methodCall
 		| expression
 		| returnStmt
@@ -15,8 +17,10 @@ returnStmt: 'return' expression;
 breakStmt: 'break';
 varAssignment:
 	ID (|'[' index=expression ']') (op = (MUL | DIV |ADD | SUB)|)'=' value=expression;
-importStatement: 'import' package (',' package)*;
-package: ID (|'.' package);
+varMultiAssignment:
+	arrOrVar (COMMA arrOrVar)+ '=' values+=expression (COMMA values+=expression)*;
+importStatement: 'import' package (COMMA package)*;
+package: ID (|DOT package);
 ifElse:
 	'if' ifExpr = expression '{' (if += statement)* '}' (
 		'elif' elifExpr += expression (elifSb += statementBlock)
@@ -24,7 +28,8 @@ ifElse:
 forLoop: 'for' (var=ID 'in' expression|expression) '{' statement* '}';
 statementBlock: '{' statement* '}';
 methodDefinition:
-	'box ' name = ID '(' (args += ID (',' args += ID)* |) ')' '{' statement* '}';
+	'box ' name = ID '(' (args += ID (COMMA args += ID)* |) ')' '{' statement* '}';
+arrOrVar:  ID (|'[' index=expression ']');
 expression:
 	methodCall
 	| array
@@ -33,7 +38,7 @@ expression:
 	| FLOAT
 	| BOOL
 	| STRING
-	| target=expression '.' callOn=expression
+	| target=expression DOT callOn=expression
 	| ID '[' index=expression ']'
 	| ID
 	| '(' parenExp = expression ')'
@@ -43,12 +48,12 @@ expression:
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
 	| varAssignment;
 methodCall:
-	ID '(' (expression (',' expression)* |) ')';
+	ID '(' (expression (COMMA expression)* |) ')';
 array:
-	'[' ( | items+=expression (',' items+=expression)*) ']' (|'(' size=expression (',' addSize=expression) ')')
+	'[' ( | items+=expression (COMMA items+=expression)*) ']' (|'(' size=expression (COMMA addSize=expression) ')')
 	| var=ID '[' spliceStart = expression ':' (|spliceEnd = expression) ']';
 NIL: 'nil';
-FLOAT: [0-9]* '.' [0-9]+;
+FLOAT: [0-9]* DOT [0-9]+;
 INT: [0-9]+;
 BOOL: 'true' | 'false';
 STRING: '"' ~('\'' | '\\' | '\n' | '\r' | '"')+ '"' | '""';
@@ -58,6 +63,9 @@ SUB: '-';
 MUL: '*';
 DIV: '/';
 MOD: '%';
+
+COMMA: ',';
+DOT: '.';
 
 EQ: '==';
 NEQ: '!=';

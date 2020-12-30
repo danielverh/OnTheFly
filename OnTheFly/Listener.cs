@@ -30,6 +30,8 @@ namespace OnTheFly
         public override void EnterStatement(FlyParser.StatementContext context)
         {
             if (context.expression() != null)
+            else if (context.varMultiAssignment() != null)
+                EnterVarMultiAssignment(context.varMultiAssignment());
                 EnterExpression(context.expression());
             else if (context.ifElse() != null)
                 EnterIfElse(context.ifElse());
@@ -401,6 +403,56 @@ namespace OnTheFly
         }
 
         public List<string> Imports = new List<string>();
+
+        public override void EnterVarMultiAssignment(FlyParser.VarMultiAssignmentContext context)
+        {
+            var ids = context.arrOrVar();
+            var values = context._values;
+
+            // Check if valid multi assignment:
+            // Either one value and multiple ids or the same amount of values and ids
+            if (ids.Length == values.Count)
+            {
+                for (int i = 0; i < ids.Length; i++)
+                {
+                    EnterExpression(values[i]);
+                    if (ids[i].index != null)
+                    {
+                        EnterExpression(ids[i].index);
+                        Code.GetVar(ids[i].ID().GetText());
+                        Code.ArraySet();
+                    }
+                    else
+                    {
+                        Code.SetVar(ids[i].ID().GetText());
+                    }
+                    Code.Instructions.Add(OpCode.POP);
+                }
+            }
+            else if (values.Count == 1)
+            {
+                EnterExpression(values[0]);
+                foreach (var id in ids)
+                {
+                    if (id.index != null)
+                    {
+                        EnterExpression(id.index);
+                        Code.GetVar(id.ID().GetText());
+                        Code.ArraySet();
+                    }
+                    else
+                    {
+                        Code.SetVar(id.ID().GetText());
+                    }
+                }
+                Code.Instructions.Add(OpCode.POP);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"The multi var assignment has a invalid amount of variable names / expressions.");
+            }
+        }
 
         public object Clone()
         {
