@@ -18,7 +18,7 @@ namespace OnTheFly
             var parser = new FlyParser(new CommonTokenStream(lexer));
             var listener = new Listener();
             listener.EnterProgram(parser.program());
-            return (listener.Instructions, listener.Contexts);
+            return (listener.Code.Instructions, listener.Code.Contexts);
         }
 
         public static (Instructions Instructions, CodeContexts Contexts) ParseFile(string file)
@@ -27,7 +27,7 @@ namespace OnTheFly
             var parser = new FlyParser(new CommonTokenStream(lexer));
             var listener = new Listener();
             listener.EnterProgram(parser.program());
-            return (listener.Instructions, listener.Contexts);
+            return (listener.Code.Instructions, listener.Code.Contexts);
         }
 
         public static FObject RunEval(Instructions instructions, CodeContexts contexts)

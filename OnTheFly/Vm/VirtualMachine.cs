@@ -38,7 +38,8 @@ namespace OnTheFly.Vm
         private Functions functions = new Functions(255);
         private TextReader consoleIn;
         private TextWriter consoleOut;
-
+        // For debugging:
+        private OpCode previousOpCode;
         public VirtualMachine(Instructions _instructions, CodeContexts _contexts, TextReader _in, TextWriter _out) :
             this(_instructions, _contexts)
         {
@@ -54,7 +55,7 @@ namespace OnTheFly.Vm
             opStack = new Stack<FObject>(1024);
             callStack = new Stack<FCall>(128);
             blockStack = new Stack<FBlock>(256);
-            blockStack.Push(new FBlock(globals));
+            blockStack.Push(new FBlock(globals, 0, null));
             callStack.Push(new FCall(null, 0, 0));
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             consoleIn = Console.In;
@@ -87,13 +88,16 @@ namespace OnTheFly.Vm
                         opStack.Push(FObject.NewF32(f));
                         break;
                     case OpCode.LOAD_BOOL:
-                        opStack.Push(FObject.NewBool(NextInt() == 1));
+                        opStack.Push(FObject.NewBool(NextOperation() != OpCode.NO_OP));
                         break;
                     case OpCode.LOAD_STR:
                         opStack.Push(FObject.NewString(Heap.Add(constants[NextInt()])));
                         break;
                     case OpCode.LOAD_NIL:
                         opStack.Push(FObject.Nil());
+                        break;
+                    case OpCode.POP:
+                        opStack.Pop();
                         break;
                     case OpCode.SET_VAR:
                         index = NextInt();
@@ -120,7 +124,7 @@ namespace OnTheFly.Vm
                         opStack.Push(opStack.Pop() / opStack.Pop());
                         break;
                     case OpCode.MOD:
-                        opStack.Push(FObject.NewI32(opStack.Pop().Int() % opStack.Pop().Int()));
+                        opStack.Push(opStack.Pop() % opStack.Pop());
                         break;
                     case OpCode.ADD_I1:
                         opStack.Push(opStack.Pop() + FObject.NewI32(1));
@@ -130,6 +134,9 @@ namespace OnTheFly.Vm
                         break;
                     case OpCode.UNINV:
                         opStack.Push(!opStack.Pop());
+                        break;
+                    case OpCode.UN_NEGATIVE:
+                        opStack.Push(-opStack.Pop());
                         break;
                     case OpCode.EQUALS:
                         opStack.Push(FObject.NewBool(opStack.Pop().Equals(opStack.Pop())));
@@ -182,7 +189,8 @@ namespace OnTheFly.Vm
                         function = functions[name];
                         for (int j = 0; j < function.Arity; j++)
                         {
-                            globals[function.Arguments[j]] = opStack.Pop();
+                            // TODO: Should be in top blockstack
+                            blockStack.Peek()[function.Arguments[j]] = opStack.Pop();
                         }
 
                         callStack.Push(new FCall(function, pc, opStack.Count));
@@ -217,16 +225,14 @@ namespace OnTheFly.Vm
                         // END_BLOCK is now required after RETURN
                         break;
                     case OpCode.JMP_EQ:
+                        int offset = NextInt();
                         if (opStack.Pop().True())
-                            pc = NextInt();
-                        else
-                            pc++;
+                            pc = offset;
                         break;
                     case OpCode.JMP_FALSE:
+                        offset = NextInt();
                         if (!opStack.Pop().True())
-                            pc = NextInt();
-                        else
-                            pc++;
+                            pc = offset;
                         break;
                     case OpCode.CLONE:
                         opStack.Push(opStack.Peek());
@@ -241,13 +247,19 @@ namespace OnTheFly.Vm
                         consoleOut.WriteLine();
                         break;
                     case OpCode.START_BLOCK:
-                        blockStack.Push(new FBlock(globals));
+                        blockStack.Push(new FBlock(globals, opStack.Count, blockStack.Peek()));
                         break;
                     case OpCode.START_LOOP:
-                        blockStack.Push(new FBlock(globals, true, NextInt()));
+                        blockStack.Push(new FBlock(globals, opStack.Count, blockStack.Peek(), true, NextInt()));
                         break;
                     case OpCode.END_BLOCK:
-                        blockStack.Pop().Close();
+                        var endBlock = blockStack.Pop();
+                        while (opStack.Count > endBlock.StackCount)
+                        {
+                            opStack.Pop();
+                        }
+
+                        endBlock.Close();
                         break;
                     case OpCode.ARRAY_ADD:
                         opStack.Push(FObject.NewArray(new FArray(24)));
@@ -258,8 +270,9 @@ namespace OnTheFly.Vm
                         ));
                         break;
                     case OpCode.ARRAY_GET:
-                        indexObj = opStack.Pop();
                         var arr = opStack.Pop().Array();
+                        indexObj = opStack.Pop();
+
                         opStack.Push(arr.Get(indexObj.I32));
                         break;
                     case OpCode.ARRAY_PUSH:
@@ -318,6 +331,7 @@ namespace OnTheFly.Vm
 
                 if (pc % 10 == 0)
                     Garbage.ConditionalClean();
+                previousOpCode = cCode;
             }
 #if !DEBUG
             }

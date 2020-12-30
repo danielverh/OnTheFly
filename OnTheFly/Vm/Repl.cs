@@ -49,14 +49,14 @@ namespace OnTheFly.Vm
                     }
 
                     if (vm == null)
-                        vm = new VirtualMachine(listener.Instructions, listener.Contexts, In, Out);
+                        vm = new VirtualMachine(listener.Code.Instructions, listener.Code.Contexts, In, Out);
                     else
                     {
-                        vm.Instructions = listener.Instructions;
-                        vm.DebugContexts = listener.Contexts;
+                        vm.Instructions = listener.Code.Instructions;
+                        vm.DebugContexts = listener.Code.Contexts;
                     }
 
-                    vm.constants = new StringConstants(listener.Instructions.StringConstants.ToArray());
+                    vm.constants = new StringConstants(listener.Code.Instructions.StringConstants.ToArray());
 #if !DEBUG
                     try
                     {
@@ -82,7 +82,7 @@ namespace OnTheFly.Vm
             private string ReadInput()
             {
                 var s = In.ReadLine();
-                if (AutoEOL && !s.EndsWith(';'))
+                if (AutoEOL && (!s.EndsWith('}') && !s.EndsWith(';')))
                     s += ';';
 
                 return s;

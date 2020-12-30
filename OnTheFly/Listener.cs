@@ -13,8 +13,7 @@ namespace OnTheFly
     [Serializable]
     public class Listener : FlyBaseListener, ICloneable
     {
-        public Instructions Instructions = new Instructions();
-        public CodeContexts Contexts = new CodeContexts();
+        public CodeGenerator Code = new CodeGenerator();
 
         public Listener()
         {
@@ -30,14 +29,14 @@ namespace OnTheFly
 
         public override void EnterStatement(FlyParser.StatementContext context)
         {
-            var ctx = new CodeContext();
-            ctx.Code = context.GetText();
-            if (context.Start != null && context.Stop != null)
-                ctx.Line = $"{context.Start.Line}-{context.Stop.Line}";
-            if (context.Start != null && context.Stop != null)
-                ctx.Position = $"{context.Start.Column}-{context.Stop.Column}";
-            ctx.OpCodeStart = Instructions.Count;
-            if (context.expression() != null)
+            if (context.varAssignment() != null)
+            {
+                EnterVarAssignment(context.varAssignment());
+                Code.Instructions.Add(OpCode.POP);
+            }
+            else if (context.varMultiAssignment() != null)
+                EnterVarMultiAssignment(context.varMultiAssignment());
+            else if (context.expression() != null)
                 EnterExpression(context.expression());
             else if (context.ifElse() != null)
                 EnterIfElse(context.ifElse());
@@ -53,40 +52,35 @@ namespace OnTheFly
                 EnterImportStatement(context.importStatement());
             else if (context.breakStmt() != null)
             {
-                Instructions.Add(OpCode.BREAK);
+                Code.Break();
             }
-
-            ctx.OpCodeEnd = Instructions.Count;
-            Contexts.Add(ctx);
         }
 
         public override void EnterExpression(FlyParser.ExpressionContext context)
         {
             if (context.INT() != null) // Int to operator stack
-                Instructions.LoadInt(context.INT().GetText());
+                Code.Int(context.INT().GetText());
             else if (context.NIL() != null) // Null to operator stack
-                Instructions.Add(OpCode.LOAD_NIL);
+                Code.Nil();
             else if (context.parenExp != null)
                 EnterExpression(context.parenExp);
             else if (context.STRING() != null) // Load string to constants, and push to operator stack
-            {
-                Instructions.Add(OpCode.LOAD_STR);
-                var stringIndex = Instructions.AddString(context.STRING().GetText(), true);
-                Instructions.AddInt(stringIndex);
-            }
+                Code.String(context.STRING().GetText());
             else if (context.FLOAT() != null) // Float to operator stack
-                Instructions.LoadFloat(context.FLOAT().GetText());
+                Code.Float(context.FLOAT().GetText());
             else if (context.BOOL() != null)
-                Instructions.LoadBool(context.BOOL().GetText());
+                Code.Bool(context.BOOL().GetText());
             else if (context.ID() != null)
             {
-                var i = Instructions.AddString(context.ID().GetText());
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.AddInt(i);
                 if (context.index != null)
                 {
                     EnterExpression(context.index);
-                    Instructions.Add(OpCode.ARRAY_GET);
+                    Code.VarCall(context.ID().GetText());
+                    Code.ArrayGet();
+                }
+                else
+                {
+                    Code.VarCall(context.ID().GetText());
                 }
             }
             else if (context.callOn != null)
@@ -103,9 +97,7 @@ namespace OnTheFly
                         EnterExpression(expr);
                     }
 
-                    Instructions.Add(OpCode.CALL_LIBFUNC);
-                    Instructions.AddInt(Instructions.AddString(lib));
-                    Instructions.AddInt(Instructions.AddString(method));
+                    Code.LibFunctionCall(lib, method);
                 }
                 else
                 {
@@ -120,58 +112,19 @@ namespace OnTheFly
             else if (context.unary != null)
             {
                 EnterExpression(context.right);
-                Instructions.Add(OpCode.UNINV);
+                Code.UnaryOperator(context.unary.Text);
             }
             else if (context.left != null && context.right != null && context.op != null)
             {
                 EnterExpression(context.right);
                 EnterExpression(context.left);
-                switch (context.op.Text)
-                {
-                    case "+":
-                        Instructions.Add(OpCode.ADD);
-                        break;
-                    case "-":
-                        Instructions.Add(OpCode.SUB);
-                        break;
-                    case "*":
-                        Instructions.Add(OpCode.MUL);
-                        break;
-                    case "/":
-                        Instructions.Add(OpCode.DIV);
-                        break;
-                    case "%":
-                        Instructions.Add(OpCode.MOD);
-                        break;
-                    default:
-                        throw new ArgumentException();
-                }
+                Code.BinaryOperator(context.op.Text);
             }
             else if (context.left != null && context.right != null && context.comp != null)
             {
                 EnterExpression(context.right);
                 EnterExpression(context.left);
-                switch (context.comp.Text)
-                {
-                    case "==":
-                        Instructions.Add(OpCode.EQUALS);
-                        break;
-                    case "!=":
-                        Instructions.Add(OpCode.NOT_EQ);
-                        break;
-                    case "<":
-                        Instructions.Add(OpCode.SMALLER);
-                        break;
-                    case ">":
-                        Instructions.Add(OpCode.LARGER);
-                        break;
-                    case ">=":
-                        Instructions.Add(OpCode.LARGER_EQ);
-                        break;
-                    case "<=":
-                        Instructions.Add(OpCode.SMALLER_EQ);
-                        break;
-                }
+                Code.CompareOperator(context.comp.Text);
             }
             else if (context.methodCall() != null)
                 EnterMethodCall(context.methodCall());
@@ -186,73 +139,53 @@ namespace OnTheFly
             var name = context.ID().GetText();
             EnterExpression(context.value);
 
+            // Compound assignment
             if (context.op != null)
             {
+                Code.GetVar(name);
+
                 if (context.index != null)
                 {
-                    Instructions.Add(OpCode.GET_VAR);
-                    Instructions.AddInt(Instructions.AddString(name));
                     EnterExpression(context.index);
-                    Instructions.Add(OpCode.ARRAY_GET);
-                }
-                else
-                {
-                    Instructions.Add(OpCode.GET_VAR);
-                    Instructions.AddInt(Instructions.AddString(name));
+                    Code.ArrayGet();
                 }
 
-                switch (context.op.Text)
-                {
-                    case "+":
-                        Instructions.Add(OpCode.ADD);
-                        break;
-                    case "-":
-                        Instructions.Add(OpCode.SUB);
-                        break;
-                    case "*":
-                        Instructions.Add(OpCode.MUL);
-                        break;
-                    case "/":
-                        Instructions.Add(OpCode.DIV);
-                        break;
-                    default:
-                        throw new ArgumentException();
-                }
+                Code.BinaryOperator(context.op.Text);
             }
 
+            // Array assignment
             if (context.index != null)
             {
                 EnterExpression(context.index);
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.AddInt(Instructions.AddString(name));
-                Instructions.Add(OpCode.ARRAY_SET);
+                Code.GetVar(name);
+                Code.ArraySet();
             }
             else
             {
-                Instructions.Add(OpCode.SET_VAR);
-                Instructions.AddInt(Instructions.AddString(name));
+                Code.SetVar(name);
             }
         }
 
         public override void EnterIfElse(FlyParser.IfElseContext context)
         {
+            // TODO: Implement in CodeGenerator
             var endPositions = new List<int>();
 
             EnterExpression(context.ifExpr);
-            Instructions.Add(OpCode.JMP_FALSE);
+            Code.Instructions.Add(OpCode.JMP_FALSE);
             // Create an empty parameter which should be the end of the statement
-            var ifEndPos = Instructions.FillableInt();
-            Instructions.Block(() =>
+            var ifEndPos = Code.Instructions.FillableInt();
+            Code.Instructions.Block(() =>
             {
                 foreach (var statement in context._if)
                 {
                     EnterStatement(statement);
                 }
             });
-            Instructions.Add(OpCode.JMP);
-            endPositions.Add(Instructions.FillableInt());
+            Code.Instructions.Add(OpCode.JMP);
+            endPositions.Add(Code.Instructions.FillableInt());
 
-            Instructions.FillInt(ifEndPos, Instructions.Count);
+            Code.Instructions.FillInt(ifEndPos, Code.Instructions.Count);
             if (context._elifExpr.Count > 0)
             {
                 for (var i = 0; i < context._elifExpr.Count; i++)
@@ -261,9 +194,9 @@ namespace OnTheFly
                     var block = context._elifSb[i];
 
                     EnterExpression(expr);
-                    Instructions.Add(OpCode.JMP_FALSE);
-                    var elifEndPos = Instructions.FillableInt();
-                    Instructions.Block(() =>
+                    Code.Instructions.Add(OpCode.JMP_FALSE);
+                    var elifEndPos = Code.Instructions.FillableInt();
+                    Code.Instructions.Block(() =>
                     {
                         foreach (var stmt in block.statement())
                         {
@@ -271,15 +204,15 @@ namespace OnTheFly
                         }
                     });
 
-                    Instructions.Add(OpCode.JMP);
-                    endPositions.Add(Instructions.FillableInt());
-                    Instructions.FillInt(elifEndPos, Instructions.Count);
+                    Code.Instructions.Add(OpCode.JMP);
+                    endPositions.Add(Code.Instructions.FillableInt());
+                    Code.Instructions.FillInt(elifEndPos, Code.Instructions.Count);
                 }
             }
 
             if (context._else.Count > 0)
             {
-                Instructions.Block(() =>
+                Code.Instructions.Block(() =>
                 {
                     foreach (var statement in context._else)
                     {
@@ -288,32 +221,26 @@ namespace OnTheFly
                 });
             }
 
-            endPositions.ForEach(x => Instructions.FillInt(x, Instructions.Count));
+            endPositions.ForEach(x => Code.Instructions.FillInt(x, Code.Instructions.Count));
         }
 
         public override void EnterMethodDefinition(FlyParser.MethodDefinitionContext context)
         {
-            Instructions.Add(OpCode.ADD_FUNCTION);
-            Instructions.AddInt(Instructions.AddString(context.name.Text));
-            Instructions.AddInt(context._args.Count);
-            foreach (var arg in context._args)
-            {
-                Instructions.AddInt(Instructions.AddString(arg.Text));
-            }
-
-            var endPos = Instructions.FillableInt();
-            Instructions.Block(() =>
-            {
-                foreach (var statement in context.statement())
+            Code.MethodDefinition(context.name.Text,
+                context._args.Select(x => x.Text).ToArray(), () =>
                 {
-                    EnterStatement(statement);
+                    foreach (var statement in context.statement())
+                    {
+                        EnterStatement(statement);
+                    }
+
+                    if (Code.Instructions.Last() != (int)OpCode.RETURN)
+                    {
+                        Code.Nil();
+                        Code.Instructions.Add(OpCode.RETURN);
+                    }
                 }
-
-                Instructions.Add(OpCode.RETURN);
-            });
-
-
-            Instructions.FillInt(endPos, Instructions.Count);
+            );
         }
 
         public override void EnterMethodCall(FlyParser.MethodCallContext context)
@@ -327,13 +254,13 @@ namespace OnTheFly
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
-                        Instructions.Add(OpCode.PRINT);
+                        Code.Instructions.Add(OpCode.PRINT);
                     }
 
-                    Instructions.Add(OpCode.PRINT_LN);
+                    Code.Instructions.Add(OpCode.PRINT_LN);
                     break;
                 case "input":
-                    Instructions.Add(OpCode.READ_LN);
+                    Code.Instructions.Add(OpCode.READ_LN);
                     break;
                 case "count":
                 case "remove":
@@ -343,8 +270,7 @@ namespace OnTheFly
                         EnterExpression(expr);
                     }
 
-                    Instructions.Add(OpCode.CALL_BUILTIN);
-                    Instructions.AddInt(Instructions.AddString(name));
+                    Code.Builtin(name);
                     break;
                 default:
                     foreach (var expr in expressions)
@@ -352,8 +278,7 @@ namespace OnTheFly
                         EnterExpression(expr);
                     }
 
-                    Instructions.Add(OpCode.CALL_FUNCTION);
-                    Instructions.AddInt(Instructions.AddString(name));
+                    Code.FunctionCall(name);
                     break;
             }
         }
@@ -361,74 +286,75 @@ namespace OnTheFly
         public override void EnterReturnStmt(FlyParser.ReturnStmtContext context)
         {
             EnterExpression(context.expression());
-            Instructions.Add(OpCode.RETURN);
+            Code.Return();
         }
 
         private int for_recursion = 0;
 
         public override void EnterForLoop(FlyParser.ForLoopContext context)
         {
+            // TODO: Implement in CodeGenerator
             if (context.var != null)
             {
-                var indexer = Instructions.AddString("@f" + for_recursion++);
-                Instructions.Add(OpCode.LOAD_I32);
-                Instructions.AddInt(0);
-                Instructions.Add(OpCode.SET_VAR);
-                Instructions.AddInt(indexer);
+                var indexer = Code.Instructions.AddString("@f" + for_recursion++);
+                Code.Instructions.Add(OpCode.LOAD_I32);
+                Code.Instructions.AddInt(0);
+                Code.Instructions.Add(OpCode.SET_VAR);
+                Code.Instructions.AddInt(indexer);
 
-                var start = Instructions.Count;
+                var start = Code.Instructions.Count;
                 EnterExpression(context.expression());
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.AddInt(indexer);
-                Instructions.Add(OpCode.SMALLER);
+                Code.Instructions.Add(OpCode.GET_VAR);
+                Code.Instructions.AddInt(indexer);
+                Code.Instructions.Add(OpCode.SMALLER);
 
-                Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
-                var endPos = Instructions.FillableInt(); // Set the end position
-                Instructions.StartBlock(); // Start a block for context dependent variables 
+                Code.Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
+                var endPos = Code.Instructions.FillableInt(); // Set the end position
+                Code.Instructions.StartBlock(); // Start a block for context dependent variables 
                 EnterExpression(context.expression());
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.AddInt(indexer);
-                Instructions.Add(OpCode.ARRAY_GET);
+                Code.Instructions.Add(OpCode.GET_VAR);
+                Code.Instructions.AddInt(indexer);
+                Code.Instructions.Add(OpCode.ARRAY_GET);
 
-                Instructions.Add(OpCode.SET_VAR);
-                Instructions.AddInt(Instructions.AddString(context.var.Text));
+                Code.Instructions.Add(OpCode.SET_VAR);
+                Code.Instructions.AddInt(Code.Instructions.AddString(context.var.Text));
                 foreach (var stmt in context.statement())
                     EnterStatement(stmt);
 
-                Instructions.EndBlock(); // Close the current block
+                Code.Instructions.EndBlock(); // Close the current block
 
-                Instructions.Add(OpCode.GET_VAR);
-                Instructions.AddInt(indexer);
-                Instructions.Add(OpCode.ADD_I1);
+                Code.Instructions.Add(OpCode.GET_VAR);
+                Code.Instructions.AddInt(indexer);
+                Code.Instructions.Add(OpCode.ADD_I1);
 
-                Instructions.Add(OpCode.SET_VAR);
-                Instructions.AddInt(indexer);
+                Code.Instructions.Add(OpCode.SET_VAR);
+                Code.Instructions.AddInt(indexer);
 
-                Instructions.Add(OpCode.JMP);
-                Instructions.AddInt(start);
+                Code.Instructions.Add(OpCode.JMP);
+                Code.Instructions.AddInt(start);
 
-                Instructions.FillInt(endPos, Instructions.Count);
+                Code.Instructions.FillInt(endPos, Code.Instructions.Count);
             }
             else
             {
-                var start = Instructions.Count;
+                var start = Code.Instructions.Count;
                 EnterExpression(context.expression());
 
-                Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
-                var endPos = Instructions.FillableInt(); // Set the end position
-                Instructions.Add(OpCode.START_LOOP); // Start a block for context dependent variables 
-                var endPos2 = Instructions.FillableInt(); // Set the end position
+                Code.Instructions.Add(OpCode.JMP_FALSE); // Jump to the end if expression is false
+                var endPos = Code.Instructions.FillableInt(); // Set the end position
+                Code.Instructions.Add(OpCode.START_LOOP); // Start a block for context dependent variables 
+                var endPos2 = Code.Instructions.FillableInt(); // Set the end position
 
                 foreach (var stmt in context.statement())
                     EnterStatement(stmt);
 
-                Instructions.EndBlock(); // Close the current block
+                Code.Instructions.EndBlock(); // Close the current block
 
-                Instructions.Add(OpCode.JMP);
-                Instructions.AddInt(start);
+                Code.Instructions.Add(OpCode.JMP);
+                Code.Instructions.AddInt(start);
 
-                Instructions.FillInt(endPos, Instructions.Count);
-                Instructions.FillInt(endPos2, Instructions.Count);
+                Code.Instructions.FillInt(endPos, Code.Instructions.Count);
+                Code.Instructions.FillInt(endPos2, Code.Instructions.Count);
             }
         }
 
@@ -437,20 +363,20 @@ namespace OnTheFly
             if (context.var != null)
             {
                 var hasEnd = context.spliceEnd != null;
-                Instructions.Add(OpCode.GET_VAR);
+                Code.Instructions.Add(OpCode.GET_VAR);
                 var varName = context.var.Text;
-                Instructions.AddInt(Instructions.AddString(varName));
+                Code.Instructions.AddInt(Code.Instructions.AddString(varName));
                 EnterExpression(context.spliceStart);
                 if (hasEnd)
                     EnterExpression(context.spliceEnd);
                 else
                 {
-                    Instructions.Add(OpCode.GET_VAR);
-                    Instructions.AddInt(Instructions.AddString(varName));
-                    Instructions.Add(OpCode.SUB_I1);
+                    Code.Instructions.Add(OpCode.GET_VAR);
+                    Code.Instructions.AddInt(Code.Instructions.AddString(varName));
+                    Code.Instructions.Add(OpCode.SUB_I1);
                 }
 
-                Instructions.Add(OpCode.ARRAY_SPLICE);
+                Code.Instructions.Add(OpCode.ARRAY_SPLICE);
             }
             else
             {
@@ -461,13 +387,13 @@ namespace OnTheFly
                     EnterExpression(context.size);
                 }
 
-                Instructions.Add(big ? OpCode.ARRAY_ADD_BIG : OpCode.ARRAY_ADD);
+                Code.Instructions.Add(big ? OpCode.ARRAY_ADD_BIG : OpCode.ARRAY_ADD);
                 var expressions = context._items;
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    Instructions.Add(OpCode.CLONE);
+                    Code.Instructions.Add(OpCode.CLONE);
                     EnterExpression(context.expression(i));
-                    Instructions.Add(OpCode.ARRAY_PUSH);
+                    Code.Instructions.Add(OpCode.ARRAY_PUSH);
                 }
             }
         }
@@ -477,13 +403,62 @@ namespace OnTheFly
             var packages = context.package();
             foreach (var package in packages)
             {
-                Instructions.Add(OpCode.IMPORT);
-                Instructions.AddInt(Instructions.AddString(package.GetText()));
+                Code.Import(package.GetText());
                 Imports.Add(package.GetText());
             }
         }
 
         public List<string> Imports = new List<string>();
+
+        public override void EnterVarMultiAssignment(FlyParser.VarMultiAssignmentContext context)
+        {
+            var ids = context.arrOrVar();
+            var values = context._values;
+
+            // Check if valid multi assignment:
+            // Either one value and multiple ids or the same amount of values and ids
+            if (ids.Length == values.Count)
+            {
+                for (int i = 0; i < ids.Length; i++)
+                {
+                    EnterExpression(values[i]);
+                    if (ids[i].index != null)
+                    {
+                        EnterExpression(ids[i].index);
+                        Code.GetVar(ids[i].ID().GetText());
+                        Code.ArraySet();
+                    }
+                    else
+                    {
+                        Code.SetVar(ids[i].ID().GetText());
+                    }
+                    Code.Instructions.Add(OpCode.POP);
+                }
+            }
+            else if (values.Count == 1)
+            {
+                EnterExpression(values[0]);
+                foreach (var id in ids)
+                {
+                    if (id.index != null)
+                    {
+                        EnterExpression(id.index);
+                        Code.GetVar(id.ID().GetText());
+                        Code.ArraySet();
+                    }
+                    else
+                    {
+                        Code.SetVar(id.ID().GetText());
+                    }
+                }
+                Code.Instructions.Add(OpCode.POP);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"The multi var assignment has a invalid amount of variable names / expressions.");
+            }
+        }
 
         public object Clone()
         {
@@ -492,10 +467,11 @@ namespace OnTheFly
             using (stream)
             {
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
-                formatter.Serialize(stream, new VisitorContainer {Instructions = Instructions, Contexts = Contexts, Imports = Imports});
+                formatter.Serialize(stream,
+                    new VisitorContainer { Generator = Code, Imports = Imports });
                 stream.Seek(0, SeekOrigin.Begin);
                 var vc = (VisitorContainer)formatter.Deserialize(stream);
-                return new Listener{Contexts = vc.Contexts, Instructions = vc.Instructions, Imports = vc.Imports};
+                return new Listener { Code = vc.Generator, Imports = vc.Imports };
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
             }
         }
@@ -503,8 +479,7 @@ namespace OnTheFly
         [Serializable]
         private class VisitorContainer
         {
-            public Instructions Instructions;
-            public CodeContexts Contexts;
+            public CodeGenerator Generator;
             public List<string> Imports;
         }
     }

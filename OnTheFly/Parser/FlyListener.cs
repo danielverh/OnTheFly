@@ -82,6 +82,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitVarAssignment([NotNull] FlyParser.VarAssignmentContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.varMultiAssignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterVarMultiAssignment([NotNull] FlyParser.VarMultiAssignmentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.varMultiAssignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitVarMultiAssignment([NotNull] FlyParser.VarMultiAssignmentContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.importStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -141,6 +151,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterArrOrVar([NotNull] FlyParser.ArrOrVarContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitArrOrVar([NotNull] FlyParser.ArrOrVarContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.expression"/>.
 	/// </summary>
