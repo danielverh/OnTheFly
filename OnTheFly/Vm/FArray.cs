@@ -99,5 +99,10 @@ namespace OnTheFly.Vm
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(items.GetHashCode(), pos);
+        }
     }
 }
