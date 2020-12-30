@@ -370,7 +370,7 @@ namespace OnTheFly
                 case FObjectType.String when o.Type == FObjectType.String:
                     return o.ToString() == ToString();
                 case FObjectType.Array when o.Type == FObjectType.Array:
-                    return PTR == o.PTR || VirtualMachine.Heap.Get(PTR) == VirtualMachine.Heap.Get(o.PTR);
+                    return PTR == o.PTR || VirtualMachine.Heap.Get(PTR).Equals(VirtualMachine.Heap.Get(o.PTR));
                 case FObjectType.Bool when o.Type == FObjectType.Bool:
                     return o.BOOL == BOOL;
                 default:

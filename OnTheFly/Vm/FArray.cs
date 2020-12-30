@@ -87,7 +87,17 @@ namespace OnTheFly.Vm
         }
         public FObject[] Get()
         {
-            return items.Take(pos).ToArray();
+            return items[..pos];
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is FArray arr)
+            {
+                return Get().SequenceEqual(arr.Get());
+            }
+
+            return false;
         }
     }
 }
