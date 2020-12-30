@@ -27,6 +27,22 @@ namespace OnTheFlyTests
             };
             EvaluateList(cases);
         }
+        [Test]
+        public void CompareOperations()
+        {
+            (string, string)[] cases =
+            {
+                ("4 == 5", "false"),
+                ("4 < 5", "true"),
+                ("5 >= 5", "true"),
+                ("6 >= 5", "true"),
+                (@"""test"" == ""test""", "true"),
+                (@"""test"" != ""a""", "true"),
+                ("[1, 2] == [1, 2]", "true"),
+                ("[1, 2] != [2, 1]", "true"),
+            };
+            EvaluateList(cases);
+        }
         public void Expressions()
         {
             (string, string)[] cases =
