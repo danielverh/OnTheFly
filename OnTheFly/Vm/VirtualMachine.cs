@@ -266,8 +266,9 @@ namespace OnTheFly.Vm
                         ));
                         break;
                     case OpCode.ARRAY_GET:
-                        indexObj = opStack.Pop();
                         var arr = opStack.Pop().Array();
+                        indexObj = opStack.Pop();
+
                         opStack.Push(arr.Get(indexObj.I32));
                         break;
                     case OpCode.ARRAY_PUSH:
