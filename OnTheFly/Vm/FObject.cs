@@ -409,7 +409,7 @@ namespace OnTheFly
                 return new FArray(l);
             }
 
-            throw new Exception();
+            throw new Exception("Subject is not an array.");
         }
 
         public string Raw()
