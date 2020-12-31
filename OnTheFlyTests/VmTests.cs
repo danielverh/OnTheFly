@@ -73,6 +73,8 @@ namespace OnTheFlyTests
             {
                 ("box add(a, b) { return a + b; } add(5,6);", "11"),
                 ("box mul(a, b) { return a * b; } mul(5,6);", "30"),
+                ("import math; math.round(1.33, 0);", "1"),
+                ("import text; text.split(\"1,2,3,4\", \",\");", "['1', '2', '3', '4']"),
             };
             EvaluateList(cases);
         }
