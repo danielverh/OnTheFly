@@ -289,6 +289,7 @@ namespace OnTheFly
                 case "insert":
                 case "filter":
                 case "mutate":
+                case "foreach":
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);

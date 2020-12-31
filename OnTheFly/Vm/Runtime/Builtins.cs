@@ -90,6 +90,22 @@ namespace OnTheFly.Vm.Runtime
                 },
                 ArgumentTypes = { FObjectType.Function }
             };
+            functions["foreach"] = new FBuiltin
+            {
+                Arity = 1,
+                CallObjectTypes = { FObjectType.Array },
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        fi.Invoke(func, new[] {oArr.Get(i)});
+                    }
+                    return FObject.Nil;
+                },
+                ArgumentTypes = { FObjectType.Function }
+            };
         }
     }
 }
