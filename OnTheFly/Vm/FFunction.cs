@@ -20,7 +20,7 @@ namespace OnTheFly.Vm
     public class FBuiltin : FFunction
     {
         public Func<FObject[], FObject> Invokable { get; set; }
-        public FObjectType CallObjectType { get; set; }
+        public FObjectType[] CallObjectTypes { get; set; }
 
         public FObject Invoke(FObject[] args)
         {

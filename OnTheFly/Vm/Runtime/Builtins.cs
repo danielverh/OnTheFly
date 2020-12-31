@@ -20,6 +20,7 @@ namespace OnTheFly.Vm.Runtime
                 throw new RuntimeException($"Functions with name '{name}' not found");
             return functions[name];
         }
+
         private static Dictionary<string, FBuiltin> functions = new Dictionary<string, FBuiltin>();
 
         static Builtins()
@@ -32,7 +33,7 @@ namespace OnTheFly.Vm.Runtime
             functions["insert"] = new FBuiltin
             {
                 // Arity count is not including caller object (array in this case)
-                Arity = 2, CallObjectType = FObjectType.Array,
+                Arity = 2, CallObjectTypes = new[] {FObjectType.Array},
                 Invokable = (ins) =>
                 {
                     ins[0].Array().Insert(ins[1].I64, ins[2]);
@@ -42,12 +43,12 @@ namespace OnTheFly.Vm.Runtime
             };
             functions["count"] = new FBuiltin
             {
-                Arity = 0, CallObjectType = FObjectType.Array | FObjectType.String,
+                Arity = 0, CallObjectTypes = new[] {FObjectType.Array, FObjectType.String},
                 Invokable = (ins) => FObject.NewI64(ins[0].Array().pos),
             };
             functions["remove"] = new FBuiltin
             {
-                Arity = 1, CallObjectType = FObjectType.Array,
+                Arity = 1, CallObjectTypes = new[] {FObjectType.Array},
                 Invokable = (ins) =>
                 {
                     ins[0].Array().Remove(ins[1].I64);

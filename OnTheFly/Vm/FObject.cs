@@ -17,6 +17,8 @@ namespace OnTheFly
     [StructLayout(LayoutKind.Explicit)]
     public struct FObject : IDisposable
     {
+        public static FObject NewFunction(FFunction function) => new FObject
+            {Type = FObjectType.Function, PTR = VirtualMachine.Heap.Add(function)};
         public static FObject NewI64(long i) => new FObject { Type = FObjectType.Int, I64 = i };
         public static FObject NewF64(double i) => new FObject { Type = FObjectType.Float, F64 = i };
         public static FObject NewBool(bool b) => new FObject { Type = FObjectType.Bool, BOOL = b };
@@ -328,8 +330,8 @@ namespace OnTheFly
         }
         public FObjectType Type
         {
-            get => (FObjectType) _type;
-            set => _type = (byte) value;
+            get => (FObjectType)_type;
+            set => _type = (byte)value;
         }
         [FieldOffset(0)] public byte _type;
 
@@ -464,16 +466,15 @@ namespace OnTheFly
         }
     }
 
-    [Flags]
     public enum FObjectType
     {
-        Nil = 2,
-        Int = 4,
-        Float = 8,
-        String = 16,
-        Array = 32,
-        Bool = 64,
-
-        Any = 128,
+        Nil,
+        Int,
+        Float,
+        String,
+        Array,
+        Bool,
+        Function,
+        Any,
     }
 }

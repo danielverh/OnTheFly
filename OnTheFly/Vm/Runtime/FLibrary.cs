@@ -26,12 +26,14 @@ namespace OnTheFly.Vm.Runtime
     }
     public static class FLibraryExtensions
     {
-        public static float IsFloat(this FObject obj)
+        public static double IsFloat(this FObject obj)
         {
             var res = obj.Is(ObjType.Number);
             if (res is int i)
                 return i;
-            else if (res is float f)
+            if (res is long l)
+                return l;
+            else if (res is double f)
                 return f;
             throw new Exception($"{res} is not a number");
         }
@@ -40,8 +42,21 @@ namespace OnTheFly.Vm.Runtime
             var res = obj.Is(ObjType.Number);
             if (res is int i)
                 return i;
-            else if (res is float f)
+            if (res is long l)
+                return (int) l;
+            else if (res is double f)
                 return (int)f;
+            throw new Exception($"{res} is not a number");
+        }
+        public static long IsLong(this FObject obj)
+        {
+            var res = obj.Is(ObjType.Number);
+            if (res is int i)
+                return i;
+            if (res is long l)
+                return l;
+            else if (res is double f)
+                return (long)f;
             throw new Exception($"{res} is not a number");
         }
         public static FArray IsArray(this FObject obj)
