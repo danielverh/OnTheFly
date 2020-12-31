@@ -61,11 +61,11 @@ namespace OnTheFly.Vm
         {
             items[index] = FObject.Nil;
             var n = new FObject[items.Length - 1];
-            for (var i = 0; i < n.Length; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (i > index) 
                     n[i-1] = items[i];
-                else
+                else if(i < n.Length)
                 {
                     n[i] = items[i];
                 }
