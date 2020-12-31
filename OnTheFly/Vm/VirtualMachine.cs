@@ -32,7 +32,7 @@ namespace OnTheFly.Vm
 
         public CodeContexts DebugContexts;
         private Stack<FObject> opStack;
-        private Stack<FCall> callStack;
+        private ConstrainStack<FCall> callStack;
         private Stack<FBlock> blockStack;
         private int pc;
         private Dictionary<string, FObject> globals = new Dictionary<string, FObject>();
@@ -58,7 +58,7 @@ namespace OnTheFly.Vm
             Instructions = _instructions;
             constants = new StringConstants(_instructions.StringConstants.ToArray());
             opStack = new Stack<FObject>(1024);
-            callStack = new Stack<FCall>(128);
+            callStack = new ConstrainStack<FCall>(2048);
             blockStack = new Stack<FBlock>(256);
             blockStack.Push(new FBlock(globals, 0, null));
             callStack.Push(new FCall(null, 0, 0));
@@ -403,12 +403,10 @@ namespace OnTheFly.Vm
             }
 #endif
             var end = FObject.Nil;
-            if (opStack.Count > blockStack.Peek().StackCount)
-                end = Pop();
-            while (opStack.Count > blockStack.Peek().StackCount)
-            {
-                opStack.Pop();
-            }
+            if (opStack.Count == 1)
+                end = opStack.Pop();
+            else if(opStack.Count > 1)
+                throw new RuntimeException("opStack has to many items.");
             return end;
             OpCode NextOperation()
             {
@@ -469,10 +467,7 @@ namespace OnTheFly.Vm
         /// <returns>The operation stack topmost item, or &lt;nil&gt; if there are no items on the stack</returns>
         public FObject EvalRun()
         {
-            var ret = Invoke(immutableInstr);
-            if (ret.Type == FObjectType.Nil && opStack.Peek().Type != FObjectType.Nil)
-                return opStack.Peek();
-            return ret;
+            return Invoke(immutableInstr);
         }
 
         public static class Garbage
