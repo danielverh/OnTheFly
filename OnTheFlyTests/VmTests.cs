@@ -92,8 +92,8 @@ namespace OnTheFlyTests
         {
             (string, string)[] cases =
             {
-                ("test = [1,2,3,4]; test.select(box (x) { return x + 1; });", "[2, 3, 4, 5]"),
-                ("test = [1,2,3,4]; test.where(box (x) { return x % 2 == 0; });", "[2, 4]"),
+                ("test = [1,2,3,4]; test.mutate(box (x) { return x + 1; });", "[2, 3, 4, 5]"),
+                ("test = [1,2,3,4]; test.filter(box (x) { return x % 2 == 0; });", "[2, 4]"),
             };
             EvaluateList(cases);
         }
