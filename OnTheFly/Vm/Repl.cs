@@ -48,7 +48,6 @@ namespace OnTheFly.Vm
                         Console.WriteLine(e.Message.Split('\n').First());
                     }
 
-                    Console.WriteLine(listener.Code.Instructions.Disassemble());
                     if (vm == null)
                         vm = new VirtualMachine(listener.Code.Instructions, listener.Code.Contexts, In, Out);
                     else
@@ -62,14 +61,8 @@ namespace OnTheFly.Vm
                     try
                     {
 #endif
-                    vm.Run();
-                    while (vm.opStack.Count > 1)
-                    {
-                        vm.opStack.Pop();
-                    }
-
-                    if (vm.opStack.Count == 1)
-                        Console.WriteLine(vm.opStack.Pop().ToString());
+                    var res = vm.EvalRun();
+                    Console.WriteLine(res);
 #if !DEBUG
                     }
                     catch (Exception e)
