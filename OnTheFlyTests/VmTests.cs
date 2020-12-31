@@ -66,6 +66,25 @@ namespace OnTheFlyTests
             };
             EvaluateList(cases);
         }
+        [Test]
+        public void Functions()
+        {
+            (string, string)[] cases =
+            {
+                ("box add(a, b) { return a + b; } add(5,6);", "11"),
+                ("box mul(a, b) { return a * b; } mul(5,6);", "30"),
+            };
+            EvaluateList(cases);
+        }
+        [Test]
+        public void Loops()
+        {
+            (string, string)[] cases =
+            {
+                ("arr = []; i = 0; for i<10 { arr += (i+=1); } arr;", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
+            };
+            EvaluateList(cases);
+        }
         public void EvaluateList((string, string)[] cases)
         {
             foreach (var (code, expected) in cases)
