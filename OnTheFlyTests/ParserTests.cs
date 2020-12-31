@@ -19,6 +19,7 @@ namespace OnTheFlyTests
             {
                 "test = 5;",
                 "if true { print(0); } elif false { print(1); } else { print(2); }",
+                "b = box (a) { return a; }",
                 "a, b = 5, 4;",
             };
             foreach (var @case in cases)

@@ -184,6 +184,16 @@ namespace OnTheFly
 
                         sb.AppendLine($") :{nextInt()}");
                         break;
+                    case OpCode.ADD_AN_FUNCTION:
+                        sb.Append($"ADD_AN_FUNCTION Anonymous(");
+                        argCount = nextInt();
+                        for (var j = 0; j < argCount; j++)
+                        {
+                            sb.Append(StringConstants[nextInt()] + ", ");
+                        }
+
+                        sb.AppendLine($") :{nextInt()}");
+                        break;
                     case OpCode.JMP:
                         sb.AppendLine($"JMP: {nextInt()}");
                         break;
@@ -338,6 +348,7 @@ namespace OnTheFly
         CALL_LIBFUNC,
         CALL_FUNCTION,
         ADD_FUNCTION, // <arity n> | n * arg name with string constant | end position
+        ADD_AN_FUNCTION, // Anonymous functions
         ADD_ARGUMENT,
         RETURN,
         BREAK,

@@ -172,6 +172,21 @@ namespace OnTheFly.Code
             Instructions.FillInt(endPos, Instructions.Count);
         }
 
+        public void AnonymousMethodDefinitions(string[] args, Action bodyBlock)
+        {
+            Instructions.Add(OpCode.ADD_AN_FUNCTION);
+            Instructions.AddInt(args.Length);
+            foreach (var arg in args)
+            {
+                Instructions.AddInt(Instructions.AddString(arg));
+            }
+
+            var endPos = Instructions.FillableInt();
+
+            Instructions.Block(bodyBlock);
+
+            Instructions.FillInt(endPos, Instructions.Count);
+        }
         public void Builtin(string name)
         {
             Instructions.Add(OpCode.CALL_BUILTIN);

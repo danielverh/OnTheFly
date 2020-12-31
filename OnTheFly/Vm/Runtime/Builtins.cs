@@ -33,8 +33,8 @@ namespace OnTheFly.Vm.Runtime
             functions["insert"] = new FBuiltin
             {
                 // Arity count is not including caller object (array in this case)
-                Arity = 2, CallObjectTypes = new[] {FObjectType.Array},
-                Invokable = (ins) =>
+                Arity = 2, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
                 {
                     ins[0].Array().Insert(ins[1].I64, ins[2]);
                     return ins[0];
@@ -43,18 +43,52 @@ namespace OnTheFly.Vm.Runtime
             };
             functions["count"] = new FBuiltin
             {
-                Arity = 0, CallObjectTypes = new[] {FObjectType.Array, FObjectType.String},
-                Invokable = (ins) => FObject.NewI64(ins[0].Array().pos),
+                Arity = 0, CallObjectTypes = {FObjectType.Array, FObjectType.String},
+                Invokable = (fi, ins) => FObject.NewI64(ins[0].Array().Length),
             };
             functions["remove"] = new FBuiltin
             {
-                Arity = 1, CallObjectTypes = new[] {FObjectType.Array},
-                Invokable = (ins) =>
+                Arity = 1, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
                 {
                     ins[0].Array().Remove(ins[1].I64);
                     return ins[0];
                 },
                 ArgumentTypes = {FObjectType.Int}
+            };
+            functions["select"] = new FBuiltin
+            {
+                Arity = 1, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    var nArr = new FArray(oArr.Length);
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        nArr.Push(fi.Invoke(func, new[] {oArr.Get(i)}));
+                    }
+                    return FObject.NewArray(nArr);
+                },
+                ArgumentTypes = {FObjectType.Function}
+            };
+            functions["where"] = new FBuiltin
+            {
+                Arity = 1,
+                CallObjectTypes = { FObjectType.Array },
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    var nArr = new FArray(oArr.Length);
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        if(fi.Invoke(func, new[] { oArr.Get(i) }).True())
+                            nArr.Push(oArr.Get(i));
+                    }
+                    return FObject.NewArray(nArr);
+                },
+                ArgumentTypes = { FObjectType.Function }
             };
         }
     }

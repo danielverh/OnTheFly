@@ -180,6 +180,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

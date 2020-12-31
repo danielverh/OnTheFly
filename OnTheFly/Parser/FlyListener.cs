@@ -152,6 +152,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

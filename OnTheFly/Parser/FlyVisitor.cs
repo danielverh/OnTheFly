@@ -105,6 +105,12 @@ public interface IFlyVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

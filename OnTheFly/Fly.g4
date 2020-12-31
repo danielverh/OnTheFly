@@ -29,6 +29,9 @@ forLoop: 'for' (var=ID 'in' expression|expression) '{' statement* '}';
 statementBlock: '{' statement* '}';
 methodDefinition:
 	'box ' name = ID '(' (args += ID (COMMA args += ID)* |) ')' '{' statement* '}';
+anonymousMethodDefinition:
+	'box ' '(' (args += ID (COMMA args += ID)* |) ')' '{' statement* '}';
+
 arrOrVar:  ID (|'[' index=expression ']');
 expression:
 	methodCall
@@ -46,7 +49,8 @@ expression:
 	| left = expression op = (MUL | DIV) right = expression
 	| left = expression op = (ADD | SUB | MOD) right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
-	| varAssignment;
+	| varAssignment
+	| anonymousMethodDefinition;
 methodCall:
 	ID '(' (expression (COMMA expression)* |) ')';
 array:

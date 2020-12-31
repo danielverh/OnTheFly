@@ -8,9 +8,9 @@ namespace OnTheFly.Vm
     public class FArray
     {
         public FObject[] items;
-        internal int pos;
+        private int pos;
         private short _add = 24;
-
+        public int Length => pos;
         public FArray(long initSize, short addSize = 24)
         {
             items = new FObject[initSize];
@@ -59,7 +59,7 @@ namespace OnTheFly.Vm
         }
         public void Remove(long index)
         {
-            items[index] = FObject.Nil();
+            items[index] = FObject.Nil;
             var n = new FObject[items.Length - 1];
             for (var i = 0; i < n.Length; i++)
             {

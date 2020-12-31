@@ -48,6 +48,7 @@ namespace OnTheFly.Vm
                         Console.WriteLine(e.Message.Split('\n').First());
                     }
 
+                    Console.WriteLine(listener.Code.Instructions.Disassemble());
                     if (vm == null)
                         vm = new VirtualMachine(listener.Code.Instructions, listener.Code.Contexts, In, Out);
                     else

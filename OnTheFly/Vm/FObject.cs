@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Helpers;
+using OnTheFly.Vm.Runtime.Exceptions;
 
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
@@ -17,7 +18,7 @@ namespace OnTheFly
     [StructLayout(LayoutKind.Explicit)]
     public struct FObject : IDisposable
     {
-        public static FObject NewFunction(FFunction function) => new FObject
+        public static FObject NewFunction(FAnonymous function) => new FObject
             {Type = FObjectType.Function, PTR = VirtualMachine.Heap.Add(function)};
         public static FObject NewI64(long i) => new FObject { Type = FObjectType.Int, I64 = i };
         public static FObject NewF64(double i) => new FObject { Type = FObjectType.Float, F64 = i };
@@ -37,7 +38,7 @@ namespace OnTheFly
             return o;
         }
 
-        public static FObject Nil() => new FObject { Type = FObjectType.Nil, BOOL = false };
+        public static FObject Nil => new FObject { Type = FObjectType.Nil, BOOL = false };
 
         /// <summary>
         /// Check if the object is <c>true</c>. If the object is of type <c>Bool</c>, return its corresponding value.
@@ -74,6 +75,14 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public FAnonymous Function()
+        {
+            if(Type != FObjectType.Function)
+                throw new RuntimeException($"Could not get function: type {Type} is not a function.");
+            return (FAnonymous)VirtualMachine.Heap.Get(PTR);
+        }
+
         /// <summary>
         /// Make the FObject negative
         /// </summary>
@@ -428,7 +437,7 @@ namespace OnTheFly
             switch (Type)
             {
                 case FObjectType.Array:
-                    return FObject.NewI64(Array().pos);
+                    return FObject.NewI64(Array().Length);
                 case FObjectType.String:
                     return FObject.NewI64(VirtualMachine.Heap.Get(PTR).ToString().Length);
                 default:

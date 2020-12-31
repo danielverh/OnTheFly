@@ -87,6 +87,16 @@ namespace OnTheFlyTests
             };
             EvaluateList(cases);
         }
+        [Test]
+        public void AnonymousFunctions()
+        {
+            (string, string)[] cases =
+            {
+                ("test = [1,2,3,4]; test.select(box (x) { return x + 1; });", "[2, 3, 4, 5]"),
+                ("test = [1,2,3,4]; test.where(box (x) { return x % 2 == 0; });", "[2, 4]"),
+            };
+            EvaluateList(cases);
+        }
         public void EvaluateList((string, string)[] cases)
         {
             foreach (var (code, expected) in cases)

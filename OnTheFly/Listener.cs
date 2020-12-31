@@ -130,6 +130,8 @@ namespace OnTheFly
                 EnterMethodCall(context.methodCall());
             else if (context.varAssignment() != null)
                 EnterVarAssignment(context.varAssignment());
+            else if (context.anonymousMethodDefinition() != null)
+                EnterAnonymousMethodDefinition(context.anonymousMethodDefinition());
             else
                 throw new Exception("Not a valid expression");
         }
@@ -243,11 +245,29 @@ namespace OnTheFly
             );
         }
 
+        public override void EnterAnonymousMethodDefinition(FlyParser.AnonymousMethodDefinitionContext context)
+        {
+            Code.AnonymousMethodDefinitions(context._args.Select(x => x.Text).ToArray(), () =>
+                {
+                    foreach (var statement in context.statement())
+                    {
+                        EnterStatement(statement);
+                    }
+
+                    if (Code.Instructions.Last() != (int)OpCode.RETURN)
+                    {
+                        Code.Nil();
+                        Code.Instructions.Add(OpCode.RETURN);
+                    }
+                }
+            );
+        }
+
         public override void EnterMethodCall(FlyParser.MethodCallContext context)
         {
             var name = context.ID().GetText();
             var expressions = context.expression().Reverse().ToArray();
-
+            // TODO: Improve builtin method checking
             switch (name)
             {
                 case "print":
@@ -265,6 +285,8 @@ namespace OnTheFly
                 case "count":
                 case "remove":
                 case "insert":
+                case "where":
+                case "select":
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
