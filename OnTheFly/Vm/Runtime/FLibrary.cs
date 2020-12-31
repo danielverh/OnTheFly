@@ -62,9 +62,9 @@ namespace OnTheFly.Vm.Runtime
             switch (obj.Type)
             {
                 case FObjectType.Int when t == ObjType.Number:
-                    return obj.I32;
+                    return obj.I64;
                 case FObjectType.Float when t == ObjType.Number:
-                    return obj.F32;
+                    return obj.F64;
                 case FObjectType.Array when t == ObjType.Array:
                     return obj.Array();
                 case FObjectType.String when t == ObjType.String:

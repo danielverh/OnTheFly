@@ -35,7 +35,7 @@ namespace OnTheFly.Vm.Runtime
                 Arity = 2, CallObjectType = FObjectType.Array,
                 Invokable = (ins) =>
                 {
-                    ins[0].Array().Insert(ins[1].I32, ins[2]);
+                    ins[0].Array().Insert(ins[1].I64, ins[2]);
                     return ins[0];
                 },
                 ArgumentTypes = {FObjectType.Array, FObjectType.Int, FObjectType.Any}
@@ -43,14 +43,14 @@ namespace OnTheFly.Vm.Runtime
             functions["count"] = new FBuiltin
             {
                 Arity = 0, CallObjectType = FObjectType.Array | FObjectType.String,
-                Invokable = (ins) => FObject.NewI32(ins[0].Array().pos),
+                Invokable = (ins) => FObject.NewI64(ins[0].Array().pos),
             };
             functions["remove"] = new FBuiltin
             {
                 Arity = 1, CallObjectType = FObjectType.Array,
                 Invokable = (ins) =>
                 {
-                    ins[0].Array().Remove(ins[1].I32);
+                    ins[0].Array().Remove(ins[1].I64);
                     return ins[0];
                 },
                 ArgumentTypes = {FObjectType.Int}

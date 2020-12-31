@@ -81,11 +81,11 @@ namespace OnTheFly.Vm
                 switch (cCode)
                 {
                     case OpCode.LOAD_I32:
-                        opStack.Push(FObject.NewI32(NextInt()));
+                        opStack.Push(FObject.NewI64(NextInt()));
                         break;
                     case OpCode.LOAD_F32:
                         var f = NextFloat();
-                        opStack.Push(FObject.NewF32(f));
+                        opStack.Push(FObject.NewF64(f));
                         break;
                     case OpCode.LOAD_BOOL:
                         opStack.Push(FObject.NewBool(NextOperation() != OpCode.NO_OP));
@@ -127,10 +127,10 @@ namespace OnTheFly.Vm
                         opStack.Push(opStack.Pop() % opStack.Pop());
                         break;
                     case OpCode.ADD_I1:
-                        opStack.Push(opStack.Pop() + FObject.NewI32(1));
+                        opStack.Push(opStack.Pop() + FObject.NewI64(1));
                         break;
                     case OpCode.SUB_I1:
-                        opStack.Push(opStack.Pop() - FObject.NewI32(1));
+                        opStack.Push(opStack.Pop() - FObject.NewI64(1));
                         break;
                     case OpCode.UNINV:
                         opStack.Push(!opStack.Pop());
@@ -265,15 +265,19 @@ namespace OnTheFly.Vm
                         opStack.Push(FObject.NewArray(new FArray(24)));
                         break;
                     case OpCode.ARRAY_ADD_BIG:
+                        var initSize = opStack.Pop().Int();
+                        var addSize = opStack.Pop().Int();
+                        if(addSize < 0 || addSize > short.MaxValue)
+                            throw new IndexOutOfRangeException();
                         opStack.Push(FObject.NewArray(
-                            new FArray(opStack.Pop().Int(), opStack.Pop().Int())
+                            new FArray(initSize, (short) addSize)
                         ));
                         break;
                     case OpCode.ARRAY_GET:
                         var arr = opStack.Pop().Array();
                         indexObj = opStack.Pop();
 
-                        opStack.Push(arr.Get(indexObj.I32));
+                        opStack.Push(arr.Get(indexObj.I64));
                         break;
                     case OpCode.ARRAY_PUSH:
                         var val = opStack.Pop();
@@ -284,19 +288,19 @@ namespace OnTheFly.Vm
                         var to = opStack.Pop(); //
                         var from = opStack.Pop(); // both ints
                         arr = opStack.Pop().Array();
-                        opStack.Push(FObject.NewArray(new FArray(arr, from.I32, to.I32)));
+                        opStack.Push(FObject.NewArray(new FArray(arr, from.I64, to.I64)));
                         break;
                     case OpCode.ARRAY_SET:
                         arr = opStack.Pop().Array();
                         indexObj = opStack.Pop();
                         val = opStack.Pop();
-                        arr.items[indexObj.I32] = val;
+                        arr.items[indexObj.I64] = val;
                         break;
                     // case OpCode.ARRAY_REMOVE:
                     //     indexObj = opStack.Pop(); // has to be int
                     //     var ptrObj = opStack.Pop();
                     //     arr = ptrObj.Array();
-                    //     arr.Remove(indexObj.I32);
+                    //     arr.Remove(indexObj.I64);
                     //     arr.pos--;
                     //     opStack.Push(ptrObj);
                     //     break;

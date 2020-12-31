@@ -13,7 +13,7 @@ namespace OnTheFly.Vm.Runtime
 
         public MathLib()
         {
-            RegisterMethod("pi", 0, x => FObject.NewF32(MathF.PI));
+            RegisterMethod("pi", 0, x => FObject.NewF64(MathF.PI));
 
             RegisterMethod("floor", 1, Single(MathF.Floor));
             RegisterMethod("ceiling", 1, Single(MathF.Ceiling));
@@ -27,14 +27,14 @@ namespace OnTheFly.Vm.Runtime
             RegisterMethod("log", 1, Single(MathF.Log));
             RegisterMethod("log10", 1, Single(MathF.Log10));
 
-            RegisterMethod("logx", 2, x => FObject.NewF32(MathF.Log(x[0].IsFloat(), x[1].IsFloat())));
-            RegisterMethod("power", 2, x => FObject.NewF32(MathF.Pow(x[0].IsFloat(), x[1].IsFloat())));
-            RegisterMethod("round", 2, x => FObject.NewF32(MathF.Round(x[0].IsFloat(), x[1].IsInt())));
+            RegisterMethod("logx", 2, x => FObject.NewF64(MathF.Log(x[0].IsFloat(), x[1].IsFloat())));
+            RegisterMethod("power", 2, x => FObject.NewF64(MathF.Pow(x[0].IsFloat(), x[1].IsFloat())));
+            RegisterMethod("round", 2, x => FObject.NewF64(MathF.Round(x[0].IsFloat(), x[1].IsInt())));
         }
 
         internal Method Single(SingleFOp op)
         {
-            return x => FObject.NewF32(op.Invoke(x[0].IsFloat()));
+            return x => FObject.NewF64(op.Invoke(x[0].IsFloat()));
         }
     }
 }
