@@ -297,7 +297,7 @@ namespace OnTheFly
             if (context.var != null)
             {
                 var indexer = Code.Instructions.AddString("@f" + for_recursion++);
-                Code.Instructions.Add(OpCode.LOAD_I32);
+                Code.Instructions.Add(OpCode.LOAD_I64);
                 Code.Instructions.AddInt(0);
                 Code.Instructions.Add(OpCode.SET_VAR);
                 Code.Instructions.AddInt(indexer);

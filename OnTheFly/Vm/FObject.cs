@@ -25,7 +25,6 @@ namespace OnTheFly
         public static FObject NewString(string str)
         {
             var o = new FObject { Type = FObjectType.String, PTR = VirtualMachine.Heap.Add(str) };
-            ;
             return o;
         }
 

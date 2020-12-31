@@ -80,11 +80,14 @@ namespace OnTheFly.Vm
                 OpCode cCode = NextOperation();
                 switch (cCode)
                 {
+                    case OpCode.LOAD_I64:
+                        opStack.Push(FObject.NewI64(NextLong()));
+                        break;
                     case OpCode.LOAD_I32:
                         opStack.Push(FObject.NewI64(NextInt()));
                         break;
-                    case OpCode.LOAD_F32:
-                        var f = NextFloat();
+                    case OpCode.LOAD_F64:
+                        var f = NextDouble();
                         opStack.Push(FObject.NewF64(f));
                         break;
                     case OpCode.LOAD_BOOL:
@@ -161,7 +164,7 @@ namespace OnTheFly.Vm
                         break;
                     case OpCode.ADD_FUNCTION:
                         var name = constants[NextInt()];
-                        var function = new FFunction() {Arity = NextInt(), Name = name};
+                        var function = new FFunction() { Arity = NextInt(), Name = name };
                         for (int j = 0; j < function.Arity; j++)
                             function.Arguments.Add(constants[NextInt()]);
                         var endPos = NextInt();
@@ -267,10 +270,10 @@ namespace OnTheFly.Vm
                     case OpCode.ARRAY_ADD_BIG:
                         var initSize = opStack.Pop().Int();
                         var addSize = opStack.Pop().Int();
-                        if(addSize < 0 || addSize > short.MaxValue)
+                        if (addSize < 0 || addSize > short.MaxValue)
                             throw new IndexOutOfRangeException();
                         opStack.Push(FObject.NewArray(
-                            new FArray(initSize, (short) addSize)
+                            new FArray(initSize, (short)addSize)
                         ));
                         break;
                     case OpCode.ARRAY_GET:
@@ -282,7 +285,7 @@ namespace OnTheFly.Vm
                     case OpCode.ARRAY_PUSH:
                         var val = opStack.Pop();
                         var ptr = opStack.Pop().PTR;
-                        ((FArray) Heap.Get(ptr)).Push(val);
+                        ((FArray)Heap.Get(ptr)).Push(val);
                         break;
                     case OpCode.ARRAY_SPLICE:
                         var to = opStack.Pop(); //
@@ -371,7 +374,7 @@ namespace OnTheFly.Vm
 
         private OpCode NextOperation()
         {
-            return (OpCode) immutableInstr[pc++];
+            return (OpCode)immutableInstr[pc++];
         }
 
         /// <summary>
@@ -388,10 +391,21 @@ namespace OnTheFly.Vm
         /// Take 4 bytes from the instructions, move the pc by 4, and convert those bytes into a float
         /// </summary>
         /// <returns></returns>
-        private float NextFloat()
+        private double NextDouble()
         {
-            return BitConverter.ToSingle(new[]
-                {immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++]});
+            return BitConverter.ToDouble(new[]
+                {
+                    immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++],
+                    immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++]
+                });
+        }
+        private long NextLong()
+        {
+            return BitConverter.ToInt64(new[]
+                {
+                    immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++],
+                    immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++], immutableInstr[pc++]
+                });
         }
 
         /// <summary>

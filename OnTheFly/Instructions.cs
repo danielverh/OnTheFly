@@ -29,6 +29,12 @@ namespace OnTheFly
             var items = BitConverter.GetBytes(i);
             base.AddRange(items);
         }
+        public void AddLong(long i)
+        {
+            // TODO: Specify endian-ness
+            var items = BitConverter.GetBytes(i);
+            base.AddRange(items);
+        }
         /// <summary>
         /// Returns the position of a byte with a null value, which can be filled in later using <c>Fill()</c>.
         /// </summary>
@@ -86,8 +92,8 @@ namespace OnTheFly
 
         public void LoadFloat(string f)
         {
-            Add(OpCode.LOAD_F32);
-            AddRange(BitConverter.GetBytes(float.Parse(f, CultureInfo.InvariantCulture)));
+            Add(OpCode.LOAD_F64);
+            AddRange(BitConverter.GetBytes(double.Parse(f, CultureInfo.InvariantCulture)));
         }
 
         public int AddString(string str, bool hasQuotes = false)
@@ -144,11 +150,14 @@ namespace OnTheFly
                     case OpCode.SUB_I1:
                         sb.AppendLine("SUBTRACT 1");
                         break;
+                    case OpCode.LOAD_I64:
+                        sb.AppendLine($"LOAD_I64 {nextLong()}");
+                        break;
                     case OpCode.LOAD_I32:
                         sb.AppendLine($"LOAD_I32 {nextInt()}");
                         break;
-                    case OpCode.LOAD_F32:
-                        sb.AppendLine($"LOAD_F32 {BitConverter.Int32BitsToSingle(nextInt())}");
+                    case OpCode.LOAD_F64:
+                        sb.AppendLine($"LOAD_F64 {BitConverter.Int64BitsToDouble(nextLong())}");
                         break;
                     case OpCode.LOAD_STR:
                         sb.AppendLine($"LOAD_STR '{StringConstants[nextInt()]}'");
@@ -270,6 +279,11 @@ namespace OnTheFly
                 opCount += 4;
                 return BitConverter.ToInt32(new[] {this[++i], this[++i], this[++i], this[++i]});
             }
+            int nextLong()
+            {
+                opCount += 4;
+                return BitConverter.ToInt32(new[] {this[++i], this[++i], this[++i], this[++i]});
+            }
         }
 
 
@@ -305,8 +319,9 @@ namespace OnTheFly
         SMALLER_EQ,
         LARGER_EQ,
 
+        LOAD_I64,
         LOAD_I32,
-        LOAD_F32,
+        LOAD_F64,
         LOAD_STR,
         LOAD_BOOL,
         LOAD_NIL,

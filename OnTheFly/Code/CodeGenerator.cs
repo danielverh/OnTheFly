@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,13 @@ namespace OnTheFly.Code
         /// </summary>
         public void Int(string content)
         {
+            var l = long.Parse(content, CultureInfo.InvariantCulture);
+            if (l > int.MaxValue || l < int.MinValue)
+            {
+                Instructions.Add(OpCode.LOAD_I64);
+                Instructions.AddLong(l);
+                return;
+            }
             Instructions.LoadInt(content);
         }
         /// <summary>
