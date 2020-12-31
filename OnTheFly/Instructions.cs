@@ -327,6 +327,7 @@ namespace OnTheFly
         LOAD_NIL,
 
         ARRAY_ADD,
+        ARRAY_ADD_W_SIZE, // Add an array with a set size (used in array initialization)
         ARRAY_ADD_BIG,
         ARRAY_PUSH,
         ARRAY_PUSH_LOT,

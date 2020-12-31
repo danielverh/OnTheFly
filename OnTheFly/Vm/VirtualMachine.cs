@@ -267,6 +267,9 @@ namespace OnTheFly.Vm
                     case OpCode.ARRAY_ADD:
                         opStack.Push(FObject.NewArray(new FArray(24)));
                         break;
+                    case OpCode.ARRAY_ADD_W_SIZE:
+                        opStack.Push(FObject.NewArray(new FArray(NextInt())));
+                        break;
                     case OpCode.ARRAY_ADD_BIG:
                         var initSize = opStack.Pop().Int();
                         var addSize = opStack.Pop().Int();

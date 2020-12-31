@@ -381,14 +381,21 @@ namespace OnTheFly
             else
             {
                 var big = context.size != null;
+                var expressions = context._items;
                 if (big)
                 {
                     EnterExpression(context.addSize);
                     EnterExpression(context.size);
+                    Code.Instructions.Add(OpCode.ARRAY_ADD_BIG);
                 }
+                else if (expressions.Count > 0)
+                {
+                    Code.Instructions.Add(OpCode.ARRAY_ADD_W_SIZE);
+                    Code.Instructions.AddInt(expressions.Count);
+                }
+                else
+                    Code.Instructions.Add(OpCode.ARRAY_ADD);
 
-                Code.Instructions.Add(big ? OpCode.ARRAY_ADD_BIG : OpCode.ARRAY_ADD);
-                var expressions = context._items;
                 for (int i = 0; i < expressions.Count; i++)
                 {
                     Code.Instructions.Add(OpCode.CLONE);
