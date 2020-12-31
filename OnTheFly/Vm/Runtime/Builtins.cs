@@ -56,7 +56,7 @@ namespace OnTheFly.Vm.Runtime
                 },
                 ArgumentTypes = {FObjectType.Int}
             };
-            functions["select"] = new FBuiltin
+            functions["mutate"] = new FBuiltin
             {
                 Arity = 1, CallObjectTypes = {FObjectType.Array},
                 Invokable = (fi, ins) =>
@@ -72,7 +72,7 @@ namespace OnTheFly.Vm.Runtime
                 },
                 ArgumentTypes = {FObjectType.Function}
             };
-            functions["where"] = new FBuiltin
+            functions["filter"] = new FBuiltin
             {
                 Arity = 1,
                 CallObjectTypes = { FObjectType.Array },

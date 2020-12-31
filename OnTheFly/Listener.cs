@@ -285,8 +285,8 @@ namespace OnTheFly
                 case "count":
                 case "remove":
                 case "insert":
-                case "where":
-                case "select":
+                case "filter":
+                case "mutate":
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
