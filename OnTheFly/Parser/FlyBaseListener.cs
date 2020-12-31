@@ -168,6 +168,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStatementBlock([NotNull] FlyParser.StatementBlockContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.methodDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

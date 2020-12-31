@@ -132,6 +132,8 @@ namespace OnTheFly
                 EnterVarAssignment(context.varAssignment());
             else if (context.anonymousMethodDefinition() != null)
                 EnterAnonymousMethodDefinition(context.anonymousMethodDefinition());
+            else if(context.lambdaExpression() != null)
+                EnterLambdaExpression(context.lambdaExpression());
             else
                 throw new Exception("Not a valid expression");
         }
@@ -487,6 +489,16 @@ namespace OnTheFly
                 throw new InvalidOperationException(
                     $"The multi var assignment has a invalid amount of variable names / expressions.");
             }
+        }
+
+        public override void EnterLambdaExpression(FlyParser.LambdaExpressionContext context)
+        {
+            Code.AnonymousMethodDefinitions(context.ID().Select(x => x.GetText()).ToArray(), () =>
+                {
+                    EnterExpression(context.expression());
+                    Code.Instructions.Add(OpCode.RETURN);
+                }
+            );
         }
 
         public object Clone()

@@ -142,6 +142,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitStatementBlock([NotNull] FlyParser.StatementBlockContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.methodDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

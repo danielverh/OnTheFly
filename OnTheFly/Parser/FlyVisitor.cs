@@ -99,6 +99,12 @@ public interface IFlyVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitStatementBlock([NotNull] FlyParser.StatementBlockContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="FlyParser.methodDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
