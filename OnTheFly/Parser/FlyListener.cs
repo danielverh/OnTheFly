@@ -202,6 +202,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitMethodCall([NotNull] FlyParser.MethodCallContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterQuickArray([NotNull] FlyParser.QuickArrayContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitQuickArray([NotNull] FlyParser.QuickArrayContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.array"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

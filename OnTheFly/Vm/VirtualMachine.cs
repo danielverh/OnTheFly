@@ -310,6 +310,19 @@ namespace OnTheFly.Vm
 
                         endBlock.Close();
                         break;
+                    case OpCode.ARRAY_QUICK:
+                        var arrEnd = Pop();
+                        var arrStart = Pop();
+                        var arrEndI = arrEnd.Int();
+                        var arrStartI = arrStart.Int();
+                        var len = arrEndI - arrStartI;
+                        var items = new FObject[len];
+                        for (var i = arrStartI; i < arrEndI; i++)
+                        {
+                            items[i - arrStartI] = FObject.NewI64(i);
+                        }
+                        opStack.Push(FObject.NewArray(new FArray(items)));
+                        break;
                     case OpCode.ARRAY_ADD:
                         opStack.Push(FObject.NewArray(new FArray(24)));
                         break;

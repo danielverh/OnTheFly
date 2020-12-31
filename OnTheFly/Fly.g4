@@ -37,6 +37,7 @@ arrOrVar:  ID (|'[' index=expression ']');
 expression:
 	methodCall
 	| array
+	| quickArray
 	| NIL
 	| INT
 	| FLOAT
@@ -55,6 +56,7 @@ expression:
 	| lambdaExpression;
 methodCall:
 	ID '(' (expression (COMMA expression)* |) ')';
+quickArray: '[' start=expression '..' end=expression ']';
 array:
 	'[' ( | items+=expression (COMMA items+=expression)*) ']' (|'(' size=expression (COMMA addSize=expression) ')')
 	| var=ID '[' spliceStart = expression ':' (|spliceEnd = expression) ']';

@@ -215,5 +215,10 @@ namespace OnTheFly.Code
         {
             Instructions.Add(OpCode.ARRAY_SET);
         }
+
+        public void QuickArray()
+        {
+            Instructions.Add(OpCode.ARRAY_QUICK);
+        }
     }
 }

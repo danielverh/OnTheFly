@@ -240,6 +240,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMethodCall([NotNull] FlyParser.MethodCallContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterQuickArray([NotNull] FlyParser.QuickArrayContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitQuickArray([NotNull] FlyParser.QuickArrayContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.array"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

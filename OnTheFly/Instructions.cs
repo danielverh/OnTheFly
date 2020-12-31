@@ -344,6 +344,7 @@ namespace OnTheFly
         ARRAY_GET,
         ARRAY_SPLICE,
         ARRAY_SET,
+        ARRAY_QUICK,
 
         CALL_LIBFUNC,
         CALL_FUNCTION,

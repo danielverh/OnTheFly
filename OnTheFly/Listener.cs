@@ -109,6 +109,10 @@ namespace OnTheFly
             {
                 EnterArray(context.array());
             }
+            else if (context.quickArray() != null)
+            {
+                EnterQuickArray(context.quickArray());
+            }
             else if (context.unary != null)
             {
                 EnterExpression(context.right);
@@ -428,6 +432,13 @@ namespace OnTheFly
                     Code.Instructions.Add(OpCode.ARRAY_PUSH);
                 }
             }
+        }
+
+        public override void EnterQuickArray(FlyParser.QuickArrayContext context)
+        {
+            EnterExpression(context.start);
+            EnterExpression(context.end);
+            Code.QuickArray();
         }
 
         public override void EnterImportStatement(FlyParser.ImportStatementContext context)
