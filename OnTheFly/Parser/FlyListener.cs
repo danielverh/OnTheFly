@@ -142,6 +142,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitStatementBlock([NotNull] FlyParser.StatementBlockContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.methodDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -151,6 +161,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
 	/// </summary>
@@ -181,6 +201,16 @@ public interface IFlyListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitMethodCall([NotNull] FlyParser.MethodCallContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterQuickArray([NotNull] FlyParser.QuickArrayContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitQuickArray([NotNull] FlyParser.QuickArrayContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.array"/>.
 	/// </summary>

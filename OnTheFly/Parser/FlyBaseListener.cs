@@ -168,6 +168,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStatementBlock([NotNull] FlyParser.StatementBlockContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.lambdaExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLambdaExpression([NotNull] FlyParser.LambdaExpressionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.methodDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -179,6 +191,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMethodDefinition([NotNull] FlyParser.MethodDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.anonymousMethodDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAnonymousMethodDefinition([NotNull] FlyParser.AnonymousMethodDefinitionContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.arrOrVar"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -215,6 +239,18 @@ public partial class FlyBaseListener : IFlyListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMethodCall([NotNull] FlyParser.MethodCallContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterQuickArray([NotNull] FlyParser.QuickArrayContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="FlyParser.quickArray"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitQuickArray([NotNull] FlyParser.QuickArrayContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="FlyParser.array"/>.
 	/// <para>The default implementation does nothing.</para>

@@ -8,10 +8,10 @@ namespace OnTheFly.Vm
     public class FArray
     {
         public FObject[] items;
-        internal int pos;
-        private int _add = 24;
-
-        public FArray(int initSize, int addSize = 24)
+        private int pos;
+        private short _add = 24;
+        public int Length => pos;
+        public FArray(long initSize, short addSize = 24)
         {
             items = new FObject[initSize];
             _add = addSize;
@@ -21,11 +21,11 @@ namespace OnTheFly.Vm
             items = _items;
             pos = items.Length;
         }
-        public FArray(FArray src, int fromInc, int toInc)
+        public FArray(FArray src, long fromInc, long toInc)
         {
             items = new FObject[toInc + 1 - fromInc];
             int j = 0;
-            for (int i = fromInc; i <= toInc; i++)
+            for (var i = fromInc; i <= toInc; i++)
             {
                 items[j] = src.items[i];
                 j++;
@@ -40,32 +40,32 @@ namespace OnTheFly.Vm
             items[pos++] = obj;
         }
 
-        public FObject Get(int index)
+        public FObject Get(long index)
         {
             if(index >= pos)
                 throw new IndexOutOfRangeException();
             return items[index];
         }
-        public void Insert(int index, FObject item)
+        public void Insert(long index, FObject item)
         {
             if (items.Length <= pos - 1)
                 Extend(_add);
-            for (int i = index; i < pos; i++)
+            for (var i = index; i < pos; i++)
             {
                 items[i + 1] = items[i];
             }
             items[index] = item;
             pos++;
         }
-        public void Remove(int index)
+        public void Remove(long index)
         {
-            items[index] = FObject.Nil();
+            items[index] = FObject.Nil;
             var n = new FObject[items.Length - 1];
-            for (int i = 0; i < n.Length; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (i > index) 
                     n[i-1] = items[i];
-                else
+                else if(i < n.Length)
                 {
                     n[i] = items[i];
                 }

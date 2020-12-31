@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OnTheFly.Vm;
 using OnTheFly.Vm.Helpers;
+using OnTheFly.Vm.Runtime.Exceptions;
 
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
@@ -17,26 +18,27 @@ namespace OnTheFly
     [StructLayout(LayoutKind.Explicit)]
     public struct FObject : IDisposable
     {
-        public static FObject NewI32(int i) => new FObject {Type = FObjectType.Int, I32 = i};
-        public static FObject NewF32(float i) => new FObject {Type = FObjectType.Float, F32 = i};
-        public static FObject NewBool(bool b) => new FObject {Type = FObjectType.Bool, BOOL = b};
-        public static FObject NewString(int i) => new FObject {Type = FObjectType.String, PTR = i};
+        public static FObject NewFunction(FAnonymous function) => new FObject
+            {Type = FObjectType.Function, PTR = VirtualMachine.Heap.Add(function)};
+        public static FObject NewI64(long i) => new FObject { Type = FObjectType.Int, I64 = i };
+        public static FObject NewF64(double i) => new FObject { Type = FObjectType.Float, F64 = i };
+        public static FObject NewBool(bool b) => new FObject { Type = FObjectType.Bool, BOOL = b };
+        public static FObject NewString(int i) => new FObject { Type = FObjectType.String, PTR = i };
 
         public static FObject NewString(string str)
         {
-            var o = new FObject {Type = FObjectType.String, PTR = VirtualMachine.Heap.Add(str)};
-            ;
+            var o = new FObject { Type = FObjectType.String, PTR = VirtualMachine.Heap.Add(str) };
             return o;
         }
 
         public static FObject NewArray(FArray array)
         {
-            var o = new FObject {Type = FObjectType.Array, PTR = VirtualMachine.Heap.Add(array)};
+            var o = new FObject { Type = FObjectType.Array, PTR = VirtualMachine.Heap.Add(array) };
             ;
             return o;
         }
 
-        public static FObject Nil() => new FObject {Type = FObjectType.Nil, BOOL = false};
+        public static FObject Nil => new FObject { Type = FObjectType.Nil, BOOL = false };
 
         /// <summary>
         /// Check if the object is <c>true</c>. If the object is of type <c>Bool</c>, return its corresponding value.
@@ -73,6 +75,14 @@ namespace OnTheFly
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public FAnonymous Function()
+        {
+            if(Type != FObjectType.Function)
+                throw new RuntimeException($"Could not get function: type {Type} is not a function.");
+            return (FAnonymous)VirtualMachine.Heap.Get(PTR);
+        }
+
         /// <summary>
         /// Make the FObject negative
         /// </summary>
@@ -83,9 +93,9 @@ namespace OnTheFly
             switch (r.Type)
             {
                 case FObjectType.Float:
-                    return FObject.NewF32(-r.F32);
+                    return FObject.NewF64(-r.F64);
                 case FObjectType.Int:
-                    return FObject.NewI32(-r.I32);
+                    return FObject.NewI64(-r.I64);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -101,16 +111,17 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return new FObject {Type = FObjectType.Int, I32 = l.I32 + r.I32};
+                    return new FObject { Type = FObjectType.Int, I64 = l.I64 + r.I64 };
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return new FObject {Type = FObjectType.Float, F32 = l.F32 + r.F32};
+                    return new FObject { Type = FObjectType.Float, F64 = l.F64 + r.F64 };
                 case FObjectType.Int when r.Type == FObjectType.Float:
                 case FObjectType.Float when r.Type == FObjectType.Int:
                     l = l.Cast(FObjectType.Float);
                     r = r.Cast(FObjectType.Float);
                     return new FObject
                     {
-                        Type = FObjectType.Float, F32 = l.F32 + r.F32
+                        Type = FObjectType.Float,
+                        F64 = l.F64 + r.F64
                     };
                 case FObjectType.Array:
                     l.Array().Push(r);
@@ -135,9 +146,9 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return new FObject {Type = FObjectType.Int, I32 = l.I32 - r.I32};
+                    return new FObject { Type = FObjectType.Int, I64 = l.I64 - r.I64 };
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return new FObject {Type = FObjectType.Float, F32 = l.F32 - r.F32};
+                    return new FObject { Type = FObjectType.Float, F64 = l.F64 - r.F64 };
                 case FObjectType.String when r.Type == FObjectType.String:
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -154,15 +165,17 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return new FObject {Type = FObjectType.Int, I32 = l.I32 * r.I32};
+                    return new FObject { Type = FObjectType.Int, I64 = l.I64 * r.I64 };
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return new FObject {Type = FObjectType.Float, F32 = l.F32 * r.F32};
+                    return new FObject { Type = FObjectType.Float, F64 = l.F64 * r.F64 };
                 case FObjectType.Float when r.Type == FObjectType.Int:
-                    return new FObject { Type = FObjectType.Float, F32 = l.F32 * r.Cast(FObjectType.Float).F32 };
+                    return new FObject { Type = FObjectType.Float, F64 = l.F64 * r.Cast(FObjectType.Float).F64 };
                 case FObjectType.Int when r.Type == FObjectType.Float:
-                    return new FObject {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 * r.F32};
+                    return new FObject { Type = FObjectType.Float, F64 = l.Cast(FObjectType.Float).F64 * r.F64 };
                 case FObjectType.String when r.Type == FObjectType.Int:
-                    return NewString(VirtualMachine.Heap.Get(l.PTR).ToString().Repeat(r.I32));
+                    if (r.I64 > int.MaxValue || r.I64 < int.MinValue)
+                        throw new IndexOutOfRangeException();
+                    return NewString(VirtualMachine.Heap.Get(l.PTR).ToString().Repeat((int)r.I64));
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -178,15 +191,15 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return new FObject {Type = FObjectType.Int, I32 = l.I32 / r.I32};
+                    return new FObject { Type = FObjectType.Int, I64 = l.I64 / r.I64 };
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return new FObject {Type = FObjectType.Float, F32 = l.F32 / r.F32};
+                    return new FObject { Type = FObjectType.Float, F64 = l.F64 / r.F64 };
                 case FObjectType.Float when r.Type == FObjectType.Int:
                     return new FObject
-                        {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 / r.Cast(FObjectType.Float).F32};
+                    { Type = FObjectType.Float, F64 = l.Cast(FObjectType.Float).F64 / r.Cast(FObjectType.Float).F64 };
                 case FObjectType.Int when r.Type == FObjectType.Float:
                     return new FObject
-                        {Type = FObjectType.Float, F32 = l.Cast(FObjectType.Float).F32 / r.Cast(FObjectType.Float).F32};
+                    { Type = FObjectType.Float, F64 = l.Cast(FObjectType.Float).F64 / r.Cast(FObjectType.Float).F64 };
                 case FObjectType.String when r.Type == FObjectType.String:
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -194,9 +207,9 @@ namespace OnTheFly
         }
         public static FObject operator %(FObject l, FObject r)
         {
-            if(l.Type != FObjectType.Int && r.Type != FObjectType.Int)
+            if (l.Type != FObjectType.Int && r.Type != FObjectType.Int)
                 throw new InvalidOperationException();
-            return new FObject { Type = FObjectType.Int, I32 = l.I32 % r.I32 };
+            return new FObject { Type = FObjectType.Int, I64 = l.I64 % r.I64 };
         }
 
         /// <summary>
@@ -210,13 +223,13 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return NewBool(l.I32 > r.I32);
+                    return NewBool(l.I64 > r.I64);
                 case FObjectType.Int when r.Type == FObjectType.Float:
-                    return NewBool(l.I32 > r.F32);
+                    return NewBool(l.I64 > r.F64);
                 case FObjectType.Float when r.Type == FObjectType.Int:
-                    return NewBool(l.F32 > r.I32);
+                    return NewBool(l.F64 > r.I64);
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return NewBool(l.F32 > r.F32);
+                    return NewBool(l.F64 > r.F64);
                 default:
                     throw new InvalidOperationException();
             }
@@ -232,13 +245,13 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return NewBool(l.I32 < r.I32);
+                    return NewBool(l.I64 < r.I64);
                 case FObjectType.Int when r.Type == FObjectType.Float:
-                    return NewBool(l.I32 < r.F32);
+                    return NewBool(l.I64 < r.F64);
                 case FObjectType.Float when r.Type == FObjectType.Int:
-                    return NewBool(l.F32 < r.I32);
+                    return NewBool(l.F64 < r.I64);
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return NewBool(l.F32 < r.F32);
+                    return NewBool(l.F64 < r.F64);
                 default:
                     throw new InvalidOperationException();
             }
@@ -254,13 +267,13 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return NewBool(l.I32 <= r.I32);
+                    return NewBool(l.I64 <= r.I64);
                 case FObjectType.Int when r.Type == FObjectType.Float:
-                    return NewBool(l.I32 <= r.F32);
+                    return NewBool(l.I64 <= r.F64);
                 case FObjectType.Float when r.Type == FObjectType.Int:
-                    return NewBool(l.F32 <= r.I32);
+                    return NewBool(l.F64 <= r.I64);
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return NewBool(l.F32 <= r.F32);
+                    return NewBool(l.F64 <= r.F64);
                 default:
                     throw new InvalidOperationException();
             }
@@ -276,13 +289,13 @@ namespace OnTheFly
             switch (l.Type)
             {
                 case FObjectType.Int when r.Type == FObjectType.Int:
-                    return NewBool(l.I32 >= r.I32);
+                    return NewBool(l.I64 >= r.I64);
                 case FObjectType.Int when r.Type == FObjectType.Float:
-                    return NewBool(l.I32 >= r.F32);
+                    return NewBool(l.I64 >= r.F64);
                 case FObjectType.Float when r.Type == FObjectType.Int:
-                    return NewBool(l.F32 >= r.I32);
+                    return NewBool(l.F64 >= r.I64);
                 case FObjectType.Float when r.Type == FObjectType.Float:
-                    return NewBool(l.F32 >= r.F32);
+                    return NewBool(l.F64 >= r.F64);
                 default:
                     throw new InvalidOperationException();
             }
@@ -300,46 +313,50 @@ namespace OnTheFly
             switch (Type)
             {
                 case FObjectType.Nil:
-                    return new FObject {Type = target};
+                    return new FObject { Type = target };
                 case FObjectType.Int:
                     return target switch
                     {
-                        FObjectType.Float => new FObject {Type = target, F32 = (float) I32},
+                        FObjectType.Float => new FObject { Type = target, F64 = (float)I64 },
                         _ => throw new InvalidOperationException()
                     };
                 case FObjectType.Float:
                     return target switch
                     {
-                        FObjectType.Int => new FObject {Type = target, I32 = (int) F32},
+                        FObjectType.Int => new FObject { Type = target, I64 = (int)F64 },
                         _ => throw new InvalidOperationException()
                     };
                 case FObjectType.Bool:
                     return target switch
                     {
-                        FObjectType.Float => new FObject {Type = target, F32 = BOOL ? 1 : 0},
-                        FObjectType.Int => new FObject {Type = target, I32 = BOOL ? 1 : 0},
+                        FObjectType.Float => new FObject { Type = target, F64 = BOOL ? 1 : 0 },
+                        FObjectType.Int => new FObject { Type = target, I64 = BOOL ? 1 : 0 },
                         _ => throw new InvalidOperationException()
                     };
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+        public FObjectType Type
+        {
+            get => (FObjectType)_type;
+            set => _type = (byte)value;
+        }
+        [FieldOffset(0)] public byte _type;
 
-        [FieldOffset(0)] public FObjectType Type;
-
-        [FieldOffset(4)] public int I32;
-        [FieldOffset(4)] public bool BOOL;
-        [FieldOffset(4)] public float F32;
-        [FieldOffset(4)] public int PTR;
+        [FieldOffset(1)] public long I64;
+        [FieldOffset(1)] public bool BOOL;
+        [FieldOffset(1)] public double F64;
+        [FieldOffset(1)] public int PTR;
 
         public override string ToString()
         {
             switch (Type)
             {
                 case FObjectType.Int:
-                    return I32.ToString();
+                    return I64.ToString();
                 case FObjectType.Float:
-                    return F32.ToString(CultureInfo.InvariantCulture);
+                    return F64.ToString(CultureInfo.InvariantCulture);
                 case FObjectType.Bool:
                     return BOOL ? "true" : "false";
                 case FObjectType.Nil:
@@ -356,7 +373,7 @@ namespace OnTheFly
 
         public override bool Equals(object obj)
         {
-            return Equals((FObject) obj);
+            return Equals((FObject)obj);
         }
 
         public bool Equals(FObject o)
@@ -364,9 +381,9 @@ namespace OnTheFly
             switch (Type)
             {
                 case FObjectType.Int when o.Type == FObjectType.Int:
-                    return o.I32 == I32;
+                    return o.I64 == I64;
                 case FObjectType.Float when o.Type == FObjectType.Float:
-                    return Math.Abs(o.F32 - F32) < 0.0001;
+                    return Math.Abs(o.F64 - F64) < 0.0001;
                 case FObjectType.String when o.Type == FObjectType.String:
                     return o.ToString() == ToString();
                 case FObjectType.Array when o.Type == FObjectType.Array:
@@ -380,22 +397,14 @@ namespace OnTheFly
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                var hashCode = (int) Type;
-                hashCode = (hashCode * 397) ^ I32;
-                hashCode = (hashCode * 397) ^ BOOL.GetHashCode();
-                hashCode = (hashCode * 397) ^ F32.GetHashCode();
-                hashCode = (hashCode * 397) ^ PTR;
-                return hashCode;
-            }
+            return HashCode.Combine(I64.GetHashCode(), Type.GetHashCode());
         }
 
         public FArray Array()
         {
             if (Type == FObjectType.Array)
             {
-                return (FArray) VirtualMachine.Heap.Get(PTR);
+                return (FArray)VirtualMachine.Heap.Get(PTR);
             }
             else if (Type == FObjectType.String)
             {
@@ -428,18 +437,18 @@ namespace OnTheFly
             switch (Type)
             {
                 case FObjectType.Array:
-                    return FObject.NewI32(Array().pos);
+                    return FObject.NewI64(Array().Length);
                 case FObjectType.String:
-                    return FObject.NewI32(VirtualMachine.Heap.Get(PTR).ToString().Length);
+                    return FObject.NewI64(VirtualMachine.Heap.Get(PTR).ToString().Length);
                 default:
                     throw new InvalidOperationException();
             }
         }
 
-        public int Int()
+        public long Int()
         {
             if (Type == FObjectType.Int)
-                return I32;
+                return I64;
             throw new Exception($"{this} is not an integer.");
         }
 
@@ -466,16 +475,15 @@ namespace OnTheFly
         }
     }
 
-    [Flags]
     public enum FObjectType
     {
-        Nil = 2,
-        Int = 4,
-        Float = 8,
-        String = 16,
-        Array = 32,
-        Bool = 64,
-
-        Any = 128,
+        Nil,
+        Int,
+        Float,
+        String,
+        Array,
+        Bool,
+        Function,
+        Any,
     }
 }

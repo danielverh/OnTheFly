@@ -109,6 +109,10 @@ namespace OnTheFly
             {
                 EnterArray(context.array());
             }
+            else if (context.quickArray() != null)
+            {
+                EnterQuickArray(context.quickArray());
+            }
             else if (context.unary != null)
             {
                 EnterExpression(context.right);
@@ -130,6 +134,10 @@ namespace OnTheFly
                 EnterMethodCall(context.methodCall());
             else if (context.varAssignment() != null)
                 EnterVarAssignment(context.varAssignment());
+            else if (context.anonymousMethodDefinition() != null)
+                EnterAnonymousMethodDefinition(context.anonymousMethodDefinition());
+            else if(context.lambdaExpression() != null)
+                EnterLambdaExpression(context.lambdaExpression());
             else
                 throw new Exception("Not a valid expression");
         }
@@ -243,11 +251,29 @@ namespace OnTheFly
             );
         }
 
+        public override void EnterAnonymousMethodDefinition(FlyParser.AnonymousMethodDefinitionContext context)
+        {
+            Code.AnonymousMethodDefinitions(context._args.Select(x => x.Text).ToArray(), () =>
+                {
+                    foreach (var statement in context.statement())
+                    {
+                        EnterStatement(statement);
+                    }
+
+                    if (Code.Instructions.Last() != (int)OpCode.RETURN)
+                    {
+                        Code.Nil();
+                        Code.Instructions.Add(OpCode.RETURN);
+                    }
+                }
+            );
+        }
+
         public override void EnterMethodCall(FlyParser.MethodCallContext context)
         {
             var name = context.ID().GetText();
             var expressions = context.expression().Reverse().ToArray();
-
+            // TODO: Improve builtin method checking
             switch (name)
             {
                 case "print":
@@ -265,6 +291,9 @@ namespace OnTheFly
                 case "count":
                 case "remove":
                 case "insert":
+                case "filter":
+                case "mutate":
+                case "foreach":
                     foreach (var expr in expressions)
                     {
                         EnterExpression(expr);
@@ -297,7 +326,7 @@ namespace OnTheFly
             if (context.var != null)
             {
                 var indexer = Code.Instructions.AddString("@f" + for_recursion++);
-                Code.Instructions.Add(OpCode.LOAD_I32);
+                Code.Instructions.Add(OpCode.LOAD_I64);
                 Code.Instructions.AddInt(0);
                 Code.Instructions.Add(OpCode.SET_VAR);
                 Code.Instructions.AddInt(indexer);
@@ -381,14 +410,21 @@ namespace OnTheFly
             else
             {
                 var big = context.size != null;
+                var expressions = context._items;
                 if (big)
                 {
                     EnterExpression(context.addSize);
                     EnterExpression(context.size);
+                    Code.Instructions.Add(OpCode.ARRAY_ADD_BIG);
                 }
+                else if (expressions.Count > 0)
+                {
+                    Code.Instructions.Add(OpCode.ARRAY_ADD_W_SIZE);
+                    Code.Instructions.AddInt(expressions.Count);
+                }
+                else
+                    Code.Instructions.Add(OpCode.ARRAY_ADD);
 
-                Code.Instructions.Add(big ? OpCode.ARRAY_ADD_BIG : OpCode.ARRAY_ADD);
-                var expressions = context._items;
                 for (int i = 0; i < expressions.Count; i++)
                 {
                     Code.Instructions.Add(OpCode.CLONE);
@@ -396,6 +432,13 @@ namespace OnTheFly
                     Code.Instructions.Add(OpCode.ARRAY_PUSH);
                 }
             }
+        }
+
+        public override void EnterQuickArray(FlyParser.QuickArrayContext context)
+        {
+            EnterExpression(context.start);
+            EnterExpression(context.end);
+            Code.QuickArray();
         }
 
         public override void EnterImportStatement(FlyParser.ImportStatementContext context)
@@ -458,6 +501,16 @@ namespace OnTheFly
                 throw new InvalidOperationException(
                     $"The multi var assignment has a invalid amount of variable names / expressions.");
             }
+        }
+
+        public override void EnterLambdaExpression(FlyParser.LambdaExpressionContext context)
+        {
+            Code.AnonymousMethodDefinitions(context.ID().Select(x => x.GetText()).ToArray(), () =>
+                {
+                    EnterExpression(context.expression());
+                    Code.Instructions.Add(OpCode.RETURN);
+                }
+            );
         }
 
         public object Clone()

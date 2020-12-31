@@ -20,6 +20,7 @@ namespace OnTheFly.Vm.Runtime
                 throw new RuntimeException($"Functions with name '{name}' not found");
             return functions[name];
         }
+
         private static Dictionary<string, FBuiltin> functions = new Dictionary<string, FBuiltin>();
 
         static Builtins()
@@ -32,28 +33,78 @@ namespace OnTheFly.Vm.Runtime
             functions["insert"] = new FBuiltin
             {
                 // Arity count is not including caller object (array in this case)
-                Arity = 2, CallObjectType = FObjectType.Array,
-                Invokable = (ins) =>
+                Arity = 2, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
                 {
-                    ins[0].Array().Insert(ins[1].I32, ins[2]);
+                    ins[0].Array().Insert(ins[1].I64, ins[2]);
                     return ins[0];
                 },
                 ArgumentTypes = {FObjectType.Array, FObjectType.Int, FObjectType.Any}
             };
             functions["count"] = new FBuiltin
             {
-                Arity = 0, CallObjectType = FObjectType.Array | FObjectType.String,
-                Invokable = (ins) => FObject.NewI32(ins[0].Array().pos),
+                Arity = 0, CallObjectTypes = {FObjectType.Array, FObjectType.String},
+                Invokable = (fi, ins) => FObject.NewI64(ins[0].Array().Length),
             };
             functions["remove"] = new FBuiltin
             {
-                Arity = 1, CallObjectType = FObjectType.Array,
-                Invokable = (ins) =>
+                Arity = 1, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
                 {
-                    ins[0].Array().Remove(ins[1].I32);
+                    ins[0].Array().Remove(ins[1].I64);
                     return ins[0];
                 },
                 ArgumentTypes = {FObjectType.Int}
+            };
+            functions["mutate"] = new FBuiltin
+            {
+                Arity = 1, CallObjectTypes = {FObjectType.Array},
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    var nArr = new FArray(oArr.Length);
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        nArr.Push(fi.Invoke(func, new[] {oArr.Get(i)}));
+                    }
+                    return FObject.NewArray(nArr);
+                },
+                ArgumentTypes = {FObjectType.Function}
+            };
+            functions["filter"] = new FBuiltin
+            {
+                Arity = 1,
+                CallObjectTypes = { FObjectType.Array },
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    var nArr = new FArray(oArr.Length);
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        if(fi.Invoke(func, new[] { oArr.Get(i) }).True())
+                            nArr.Push(oArr.Get(i));
+                    }
+                    return FObject.NewArray(nArr);
+                },
+                ArgumentTypes = { FObjectType.Function }
+            };
+            functions["foreach"] = new FBuiltin
+            {
+                Arity = 1,
+                CallObjectTypes = { FObjectType.Array },
+                Invokable = (fi, ins) =>
+                {
+                    var oArr = ins[0].Array();
+                    var func = ins[1].Function();
+                    for (int i = 0; i < oArr.Length; i++)
+                    {
+                        fi.Invoke(func, new[] {oArr.Get(i)});
+                    }
+                    return FObject.Nil;
+                },
+                ArgumentTypes = { FObjectType.Function }
             };
         }
     }

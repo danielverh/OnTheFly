@@ -61,14 +61,8 @@ namespace OnTheFly.Vm
                     try
                     {
 #endif
-                    vm.Run();
-                    while (vm.opStack.Count > 1)
-                    {
-                        vm.opStack.Pop();
-                    }
-
-                    if (vm.opStack.Count == 1)
-                        Console.WriteLine(vm.opStack.Pop().ToString());
+                    var res = vm.EvalRun();
+                    Console.WriteLine(res);
 #if !DEBUG
                     }
                     catch (Exception e)

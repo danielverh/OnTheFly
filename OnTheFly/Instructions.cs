@@ -29,6 +29,12 @@ namespace OnTheFly
             var items = BitConverter.GetBytes(i);
             base.AddRange(items);
         }
+        public void AddLong(long i)
+        {
+            // TODO: Specify endian-ness
+            var items = BitConverter.GetBytes(i);
+            base.AddRange(items);
+        }
         /// <summary>
         /// Returns the position of a byte with a null value, which can be filled in later using <c>Fill()</c>.
         /// </summary>
@@ -86,8 +92,8 @@ namespace OnTheFly
 
         public void LoadFloat(string f)
         {
-            Add(OpCode.LOAD_F32);
-            AddRange(BitConverter.GetBytes(float.Parse(f, CultureInfo.InvariantCulture)));
+            Add(OpCode.LOAD_F64);
+            AddRange(BitConverter.GetBytes(double.Parse(f, CultureInfo.InvariantCulture)));
         }
 
         public int AddString(string str, bool hasQuotes = false)
@@ -144,11 +150,14 @@ namespace OnTheFly
                     case OpCode.SUB_I1:
                         sb.AppendLine("SUBTRACT 1");
                         break;
+                    case OpCode.LOAD_I64:
+                        sb.AppendLine($"LOAD_I64 {nextLong()}");
+                        break;
                     case OpCode.LOAD_I32:
                         sb.AppendLine($"LOAD_I32 {nextInt()}");
                         break;
-                    case OpCode.LOAD_F32:
-                        sb.AppendLine($"LOAD_F32 {BitConverter.Int32BitsToSingle(nextInt())}");
+                    case OpCode.LOAD_F64:
+                        sb.AppendLine($"LOAD_F64 {BitConverter.Int64BitsToDouble(nextLong())}");
                         break;
                     case OpCode.LOAD_STR:
                         sb.AppendLine($"LOAD_STR '{StringConstants[nextInt()]}'");
@@ -168,6 +177,16 @@ namespace OnTheFly
                         name = StringConstants[nextInt()];
                         sb.Append($"ADD_FUNCTION {name}(");
                         var argCount = Functions[name] = nextInt();
+                        for (var j = 0; j < argCount; j++)
+                        {
+                            sb.Append(StringConstants[nextInt()] + ", ");
+                        }
+
+                        sb.AppendLine($") :{nextInt()}");
+                        break;
+                    case OpCode.ADD_AN_FUNCTION:
+                        sb.Append($"ADD_AN_FUNCTION Anonymous(");
+                        argCount = nextInt();
                         for (var j = 0; j < argCount; j++)
                         {
                             sb.Append(StringConstants[nextInt()] + ", ");
@@ -270,6 +289,11 @@ namespace OnTheFly
                 opCount += 4;
                 return BitConverter.ToInt32(new[] {this[++i], this[++i], this[++i], this[++i]});
             }
+            int nextLong()
+            {
+                opCount += 4;
+                return BitConverter.ToInt32(new[] {this[++i], this[++i], this[++i], this[++i]});
+            }
         }
 
 
@@ -305,23 +329,27 @@ namespace OnTheFly
         SMALLER_EQ,
         LARGER_EQ,
 
+        LOAD_I64,
         LOAD_I32,
-        LOAD_F32,
+        LOAD_F64,
         LOAD_STR,
         LOAD_BOOL,
         LOAD_NIL,
 
         ARRAY_ADD,
+        ARRAY_ADD_W_SIZE, // Add an array with a set size (used in array initialization)
         ARRAY_ADD_BIG,
         ARRAY_PUSH,
         ARRAY_PUSH_LOT,
         ARRAY_GET,
         ARRAY_SPLICE,
         ARRAY_SET,
+        ARRAY_QUICK,
 
         CALL_LIBFUNC,
         CALL_FUNCTION,
         ADD_FUNCTION, // <arity n> | n * arg name with string constant | end position
+        ADD_AN_FUNCTION, // Anonymous functions
         ADD_ARGUMENT,
         RETURN,
         BREAK,

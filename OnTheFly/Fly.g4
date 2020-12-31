@@ -27,12 +27,17 @@ ifElse:
 	)* ( | 'else' '{' (else += statement)* '}');
 forLoop: 'for' (var=ID 'in' expression|expression) '{' statement* '}';
 statementBlock: '{' statement* '}';
+lambdaExpression: LAMBDA '(' (| ID (COMMA ID)*) ')' '=>' expression;
 methodDefinition:
 	'box ' name = ID '(' (args += ID (COMMA args += ID)* |) ')' '{' statement* '}';
+anonymousMethodDefinition:
+	'box ' '(' (args += ID (COMMA args += ID)* |) ')' '{' statement* '}';
+
 arrOrVar:  ID (|'[' index=expression ']');
 expression:
 	methodCall
 	| array
+	| quickArray
 	| NIL
 	| INT
 	| FLOAT
@@ -46,12 +51,18 @@ expression:
 	| left = expression op = (MUL | DIV) right = expression
 	| left = expression op = (ADD | SUB | MOD) right = expression
 	| left = expression comp = (EQ | NEQ | SM | LG | SMEQ | LGEQ) right = expression
-	| varAssignment;
+	| varAssignment
+	| anonymousMethodDefinition
+	| lambdaExpression;
 methodCall:
 	ID '(' (expression (COMMA expression)* |) ')';
+quickArray: '[' start=expression '..' end=expression ']';
 array:
 	'[' ( | items+=expression (COMMA items+=expression)*) ']' (|'(' size=expression (COMMA addSize=expression) ')')
 	| var=ID '[' spliceStart = expression ':' (|spliceEnd = expression) ']';
+
+LAMBDA: 'lambda';
+
 NIL: 'nil';
 FLOAT: [0-9]* DOT [0-9]+;
 INT: [0-9]+;

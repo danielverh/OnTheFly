@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,13 @@ namespace OnTheFly.Code
         /// </summary>
         public void Int(string content)
         {
+            var l = long.Parse(content, CultureInfo.InvariantCulture);
+            if (l > int.MaxValue || l < int.MinValue)
+            {
+                Instructions.Add(OpCode.LOAD_I64);
+                Instructions.AddLong(l);
+                return;
+            }
             Instructions.LoadInt(content);
         }
         /// <summary>
@@ -164,6 +172,21 @@ namespace OnTheFly.Code
             Instructions.FillInt(endPos, Instructions.Count);
         }
 
+        public void AnonymousMethodDefinitions(string[] args, Action bodyBlock)
+        {
+            Instructions.Add(OpCode.ADD_AN_FUNCTION);
+            Instructions.AddInt(args.Length);
+            foreach (var arg in args)
+            {
+                Instructions.AddInt(Instructions.AddString(arg));
+            }
+
+            var endPos = Instructions.FillableInt();
+
+            Instructions.Block(bodyBlock);
+
+            Instructions.FillInt(endPos, Instructions.Count);
+        }
         public void Builtin(string name)
         {
             Instructions.Add(OpCode.CALL_BUILTIN);
@@ -191,6 +214,11 @@ namespace OnTheFly.Code
         public void ArraySet()
         {
             Instructions.Add(OpCode.ARRAY_SET);
+        }
+
+        public void QuickArray()
+        {
+            Instructions.Add(OpCode.ARRAY_QUICK);
         }
     }
 }

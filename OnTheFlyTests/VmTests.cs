@@ -59,10 +59,41 @@ namespace OnTheFlyTests
             (string, string)[] cases =
             {
                 ("i = 0; for i < 10 { i += 1; } i;", "10"),
-                ("expr = true; if expr { a = expr; }", "true"),
+                ("expr = true; a = false; if expr { a = expr; } a;", "true"),
                 ("a = -1; if true { a = 0; } elif false { a = 1; } else { a = 2; } a;", "0"),
                 ("a = -1; if false { a = 0; } elif true { a = 1; } else { a = 2; } a;", "1"),
                 ("a = -1; if false { a = 0; } elif false { a = 1; } else { a = 2; } a;", "2"),
+            };
+            EvaluateList(cases);
+        }
+        [Test]
+        public void Functions()
+        {
+            (string, string)[] cases =
+            {
+                ("box add(a, b) { return a + b; } add(5,6);", "11"),
+                ("box mul(a, b) { return a * b; } mul(5,6);", "30"),
+                ("import math; math.round(1.33, 0);", "1"),
+                ("import text; text.split(\"1,2,3,4\", \",\");", "['1', '2', '3', '4']"),
+            };
+            EvaluateList(cases);
+        }
+        [Test]
+        public void Loops()
+        {
+            (string, string)[] cases =
+            {
+                ("arr = []; i = 0; for i<10 { arr += (i+=1); } arr;", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
+            };
+            EvaluateList(cases);
+        }
+        [Test]
+        public void AnonymousFunctions()
+        {
+            (string, string)[] cases =
+            {
+                ("test = [1,2,3,4]; test.mutate(box (x) { return x + 1; });", "[2, 3, 4, 5]"),
+                ("test = [1,2,3,4]; test.filter(box (x) { return x % 2 == 0; });", "[2, 4]"),
             };
             EvaluateList(cases);
         }

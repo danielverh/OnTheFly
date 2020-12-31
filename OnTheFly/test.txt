@@ -1,9 +1,4 @@
-﻿box add(a, b){
-	return a + b;
-}
-
-print(add(5, 20));
-
+﻿j = box (a,b) {return a + b;};
 
 
 
