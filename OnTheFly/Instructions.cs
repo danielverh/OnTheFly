@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using OnTheFly.Helpers;
+using OnTheFly.Vm.Runtime;
 
 namespace OnTheFly
 {
@@ -168,10 +170,15 @@ namespace OnTheFly
                     case OpCode.LOAD_NIL:
                         sb.AppendLine("LOAD_NIL");
                         break;
-
                     case OpCode.CALL_FUNCTION:
                         string name = StringConstants[nextInt()];
                         sb.AppendLine($"CALL_FUNCTION {name} with {Functions[name]} arguments");
+                        break;                    
+                    case OpCode.CALL_BUILTIN:
+                        name = StringConstants[nextInt()];
+                        var bi = Builtins.GetBuiltin(name);
+                        sb.AppendLine($"CALL_BUILTIN {name} on {string.Join(" or ", bi.CallObjectTypes)}" +
+                                      $" with {bi.ArgumentTypes.PrettyArray()} as argument type(s)");
                         break;
                     case OpCode.ADD_FUNCTION:
                         name = StringConstants[nextInt()];
@@ -218,50 +225,11 @@ namespace OnTheFly
                     case OpCode.GET_VAR:
                         sb.AppendLine($"GET_VAR {StringConstants[nextInt()]}");
                         break;
-                    case OpCode.PRINT:
-                        sb.AppendLine("PRINT");
-                        break;
-                    case OpCode.PRINT_LN:
-                        sb.AppendLine("PRINT_LINE");
-                        break;
                     case OpCode.CALL_LIBFUNC:
                         sb.AppendLine($"CALL_LIBFUNC {StringConstants[nextInt()]} . {StringConstants[this[++i]]}");
                         break;
-                    case OpCode.RETURN:
-                        sb.AppendLine("RETURN");
-                        break;
-                    case OpCode.START_BLOCK:
-                        sb.AppendLine("START_BLOCK");
-                        break;
                     case OpCode.START_LOOP:
                         sb.AppendLine($"START_LOOP with end at:{nextInt()}");
-                        break;
-                    case OpCode.END_BLOCK:
-                        sb.AppendLine("END_BLOCK");
-                        break;
-                    case OpCode.NO_OP:
-                        sb.AppendLine("NO_OP");
-                        break;
-                    case OpCode.READ_LN:
-                        sb.AppendLine("READ_LINE");
-                        break;
-                    case OpCode.ARRAY_ADD:
-                        sb.AppendLine($"ARRAY_ADD");
-                        break;
-                    case OpCode.ARRAY_ADD_BIG:
-                        sb.AppendLine($"ARRAY_ADD_BIG");
-                        break;
-                    case OpCode.ARRAY_GET:
-                        sb.AppendLine("ARRAY_GET");
-                        break;
-                    case OpCode.ARRAY_PUSH:
-                        sb.AppendLine("ARRAY_PUSH");
-                        break;
-                    case OpCode.ARRAY_SPLICE:
-                        sb.AppendLine($"ARRAY_SPLICE");
-                        break;
-                    case OpCode.ARRAY_SET:
-                        sb.AppendLine($"ARRAY_SET");
                         break;
                     case OpCode.ARRAY_PUSH_LOT:
                         sb.AppendLine($"ARRAY_PUSH_LOT {nextInt()}");
