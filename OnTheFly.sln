@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnTheFly", ".\OnTheFly\OnTheFly.csproj", "{11EE8B67-19EC-483F-9D01-29AF8176CEB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnTheFly", "OnTheFly\OnTheFly.csproj", "{11EE8B67-19EC-483F-9D01-29AF8176CEB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnTheFlyTests", ".\OnTheFlyTests\OnTheFlyTests.csproj", "{87A18269-E6A7-44DF-8585-8FE11466E081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnTheFlyTests", "OnTheFlyTests\OnTheFlyTests.csproj", "{87A18269-E6A7-44DF-8585-8FE11466E081}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
