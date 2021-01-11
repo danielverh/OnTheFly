@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,39 +12,38 @@ namespace OnTheFly.Vm.Runtime
     /// </summary>
     public class MemoryHeap
     {
-        private readonly Dictionary<int, object> objects = new Dictionary<int, object>();
-
+        private static List<IntPtr> flyObjects = new List<IntPtr>();
         /// <summary>
         /// Adds an object to the memory heap and returns its corresponding value
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public int Add(object o)
+        public IntPtr Add(object o)
         {
-            var address = GetAddress();
-            objects.Add(address, o);
-            return address;
+            var ptr = (IntPtr)GCHandle.Alloc(o);
+            flyObjects.Add(ptr);
+            return ptr;
         }
         /// <summary>
         /// Returns an object corresponding to the address argument
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        public object Get(int address) => objects[address];
-        private int GetAddress()
-        {
-            if (objects.Count == 0) return 0;
-            return objects.Last().Key + 1;
-        }
+        #nullable enable
+        public object? Get(IntPtr address) => GCHandle.FromIntPtr(address).Target;
 
-        public void Dispose(int address)
+        public void Dispose(IntPtr address)
         {
-            objects.Remove(address);
+            GCHandle.FromIntPtr(address).Free();
         }
 
         public void Clear()
         {
-            objects.Clear();
+            foreach (var ptr in flyObjects)
+            {
+                GCHandle.FromIntPtr(ptr).Free();
+            }
+            flyObjects.Clear();
         }
     }
 }

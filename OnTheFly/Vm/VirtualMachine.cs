@@ -137,7 +137,7 @@ namespace OnTheFly.Vm
                         index = NextInt();
                         key = constants[index];
                         if (blockStack.Peek().Contains(key))
-                            Garbage.Mark(blockStack.Peek()[key]);
+                            blockStack.Peek()[key].Dispose();
                         res = blockStack.Peek()[constants[index]] = Pop();
                         opStack.Push(res);
                         break;

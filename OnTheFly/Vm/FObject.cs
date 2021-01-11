@@ -23,7 +23,7 @@ namespace OnTheFly
         public static FObject NewI64(long i) => new FObject { Type = FObjectType.Int, I64 = i };
         public static FObject NewF64(double i) => new FObject { Type = FObjectType.Float, F64 = i };
         public static FObject NewBool(bool b) => new FObject { Type = FObjectType.Bool, BOOL = b };
-        public static FObject NewString(int i) => new FObject { Type = FObjectType.String, PTR = i };
+        public static FObject NewString(IntPtr i) => new FObject { Type = FObjectType.String, PTR = i };
 
         public static FObject NewString(string str)
         {
@@ -347,7 +347,7 @@ namespace OnTheFly
         [FieldOffset(1)] public long I64;
         [FieldOffset(1)] public bool BOOL;
         [FieldOffset(1)] public double F64;
-        [FieldOffset(1)] public int PTR;
+        [FieldOffset(1)] public IntPtr PTR;
 
         public override string ToString()
         {
@@ -463,7 +463,6 @@ namespace OnTheFly
                 case FObjectType.Float:
                     break;
                 case FObjectType.String:
-                    break;
                 case FObjectType.Array:
                     VirtualMachine.Heap.Dispose(PTR);
                     break;
